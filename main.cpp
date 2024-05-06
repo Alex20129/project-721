@@ -20,14 +20,14 @@ MainWindow *mw;
 int main(int argc, char *argv[])
 {
     int ret;
+
+	gLogger=new Logger;
+	gLogger->SetLogFilePath(PROGRAM_SHORT_NAME ".log");
+
     gAppConfig=new ConfigurationHolder;
     gAppConfig->Load(QString(PROGRAM_SHORT_NAME)+QString(".json"));
 
     QApplication a(argc, argv);
-
-	gLogger=new Logger;
-	gLogger->SetLogFilePath(PROGRAM_SHORT_NAME ".log");
-	gLogger->Log("Log initiated...", LOG_INFO);
 
     bsw=new BasicSettingsWindow;
     nsw=new NetworkSettingsWindow;
@@ -38,11 +38,12 @@ int main(int argc, char *argv[])
     ssw=new SleepSettingsWindow;
     mw=new MainWindow;
 
-	gLogger->Log("Start now", LOG_INFO);
+	gLogger->Log("Start now", LOG_NOTICE);
     mw->show();
 
     ret=a.exec();
 
     gAppConfig->Save(QString(PROGRAM_SHORT_NAME)+QString(".json"));
+	gLogger->Log("Exit now", LOG_NOTICE);
     return(ret);
 }

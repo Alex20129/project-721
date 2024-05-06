@@ -3,7 +3,6 @@
 
 ConfigurationHolder::ConfigurationHolder()
 {
-    LogEnabled=true;
     ThreadLifeTime=DEFAULT_THREAD_LIFETIME;
     ActiveThreadsMaxNum=DEFAULT_THREADS_MAX_NUM;
     UpdateInterval=DEFAULT_UPDATE_INTERVAL;
@@ -39,7 +38,6 @@ int ConfigurationHolder::Save(QString pathToFile)
     JSONData.insert("AlarmWhenTemperatureBelow", QJsonValue::fromVariant(AlarmWhenTemperatureBelow));
     JSONData.insert("AlarmOnHWErrors", QJsonValue::fromVariant(AlarmOnHWErrors));
     JSONData.insert("ClearUpSettingsWhenFirmwareUpdate", QJsonValue::fromVariant(ClearUpSettingsWhenFirmwareUpdate));
-    JSONData.insert("LogEnabled", QJsonValue::fromVariant(LogEnabled));
     JSONData.insert("TimeToSleep", QJsonValue::fromVariant(TimeToSleep));
     JSONData.insert("TimeToWakeUp", QJsonValue::fromVariant(TimeToWakeUp));
     JSONData.insert("ThreadLifeTime", QJsonValue::fromVariant(ThreadLifeTime));
@@ -87,7 +85,6 @@ int ConfigurationHolder::Load(QString pathToFile)
     AlarmWhenTemperatureBelow=JSONData.value("AlarmWhenTemperatureBelow").toDouble(DEFAULT_ALARM_TEMP_BELOW);
     AlarmOnHWErrors=static_cast<unsigned int>(JSONData.value("AlarmOnHWErrors").toInt(DEFAULT_ALARM_ON_HW_ERRORS));
     ClearUpSettingsWhenFirmwareUpdate=JSONData.value("ClearUpSettingsWhenFirmwareUpdate").toBool();
-    LogEnabled=JSONData.value("LogEnabled").toBool();
     TimeToSleep=QTime::fromString(JSONData.value("TimeToSleep").toString());
     TimeToWakeUp=QTime::fromString(JSONData.value("TimeToWakeUp").toString());
     ThreadLifeTime=JSONData.value("ThreadLifeTime").toInt(DEFAULT_THREAD_LIFETIME);

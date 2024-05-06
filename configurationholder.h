@@ -27,7 +27,6 @@ public:
     int ThreadLifeTime;
     uint ActiveThreadsMaxNum;
     int UpdateInterval;
-    bool LogEnabled;
     double AlarmWhenTemperatureAbove;
     double AlarmWhenTemperatureBelow;
     uint AlarmOnHWErrors;
