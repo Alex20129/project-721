@@ -23,13 +23,14 @@ const char mgstypestring[8][10]=
 
 Logger::Logger()
 {
+	if(gLogger)
+	{
+		return;
+	}
+	gLogger=this;
 	if(!pLogMutex)
 	{
 		pLogMutex=new mutex;
-	}
-	if(!gLogger)
-	{
-		gLogger=this;
 	}
 	pSysLogEnabled=false;
 	pLogFilePath.clear();
