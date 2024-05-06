@@ -22,7 +22,7 @@ public:
     ~ScannerWindow();
     void keyPressEvent(QKeyEvent *event);
 public slots:
-    void QuickAPIScan(QVector <ASICDevice *> devicesToCheck);
+	void QuickAPIScan(QVector<ASICDevice *> *devicesToCheck);
     void updateDeviceList(ASICDevice *device);
     void clearUpDeviceList(ASICDevice *device);
 private:

@@ -58,6 +58,7 @@ private slots:
     void on_actionReset_to_default_triggered();
 
 private:
+	QVector <ASICDevice *> *DeviceList;
     int loadTabs();
     void saveTabs();
     void loadProfiles();

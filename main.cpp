@@ -3,7 +3,6 @@
 #include "logger.hpp"
 #include "main.hpp"
 
-QVector <ASICDevice *> GlobalDeviceList;
 ConfigurationHolder *gAppConfig;
 
 BasicSettingsWindow *bsw;
@@ -25,7 +24,7 @@ int main(int argc, char *argv[])
 	gLogger->SetLogFilePath(PROGRAM_SHORT_NAME ".log");
 
     gAppConfig=new ConfigurationHolder;
-    gAppConfig->Load(QString(PROGRAM_SHORT_NAME)+QString(".json"));
+	gAppConfig->Load(QString(PROGRAM_SHORT_NAME ".json"));
 
     QApplication a(argc, argv);
 
@@ -43,7 +42,7 @@ int main(int argc, char *argv[])
 
     ret=a.exec();
 
-    gAppConfig->Save(QString(PROGRAM_SHORT_NAME)+QString(".json"));
+	gAppConfig->Save(QString(PROGRAM_SHORT_NAME ".json"));
 	gLogger->Log("Exit now", LOG_NOTICE);
     return(ret);
 }

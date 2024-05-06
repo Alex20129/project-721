@@ -66,7 +66,7 @@ void ScannerWindow::on_scanIsRun()
     ui->apiScanButton->setEnabled(0);
 }
 
-void ScannerWindow::QuickAPIScan(QVector <ASICDevice *> devicesToCheck)
+void ScannerWindow::QuickAPIScan(QVector <ASICDevice *> *devicesToCheck)
 {
 	gLogger->Log("ScannerWindow::QuickAPIScan()", LOG_DEBUG);
     if(_pIsBusy)
@@ -76,16 +76,16 @@ void ScannerWindow::QuickAPIScan(QVector <ASICDevice *> devicesToCheck)
     _pIsBusy=true;
     _pStopScan=false;
     emit(ScanIsRun());
-    if(devicesToCheck.isEmpty())
+	if(devicesToCheck->isEmpty())
     {
 		gLogger->Log("Host list is empty =/", LOG_NOTICE);
         emit(ScanIsDone());
         return;
     }
     int host=0;
-    ui->progressBar->setMaximum(devicesToCheck.count());
+	ui->progressBar->setMaximum(devicesToCheck->count());
     ui->progressBar->setValue(host);
-    while(host<devicesToCheck.count())
+	while(host<devicesToCheck->count())
     {
         while(ASICDevice::ActiveThreadsNum>gAppConfig->ActiveThreadsMaxNum)
         {
@@ -93,13 +93,13 @@ void ScannerWindow::QuickAPIScan(QVector <ASICDevice *> devicesToCheck)
         }
         if(_pStopScan)
         {
-            disconnect(devicesToCheck.at(host), nullptr, nullptr, nullptr);
-            devicesToCheck.at(host)->deleteLater();
+			disconnect(devicesToCheck->at(host), nullptr, nullptr, nullptr);
+			devicesToCheck->at(host)->deleteLater();
         }
         else
         {
-            devicesToCheck.at(host)->SendCommand(QByteArray("summary"));
-            devicesToCheck.at(host)->SendCommand(QByteArray("estats"));
+			devicesToCheck->at(host)->SendCommand(QByteArray("summary"));
+			devicesToCheck->at(host)->SendCommand(QByteArray("estats"));
         }
         host++;
         ui->progressBar->setValue(host);
@@ -128,7 +128,7 @@ void ScannerWindow::on_apiScanButton_clicked()
         connect(newDevice, SIGNAL(SocketConnected(ASICDevice *)), this, SLOT(updateDeviceList(ASICDevice *)));
         connect(newDevice, SIGNAL(SocketError(ASICDevice *)), this, SLOT(clearUpDeviceList(ASICDevice *)));
     }
-    QuickAPIScan(Hosts);
+	QuickAPIScan(&Hosts);
 }
 
 void ScannerWindow::on_stopScanButton_clicked()

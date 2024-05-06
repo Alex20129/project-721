@@ -30,7 +30,6 @@
     #define API_HEADER_USER_AGENT PROGRAM_SHORT_NAME "/" PROGRAM_VERSION " (Macintosh; MacOS; x86_64)"
 #endif
 
-extern QVector <ASICDevice *> GlobalDeviceList;
 extern ConfigurationHolder *gAppConfig;
 
 extern BasicSettingsWindow *bsw;

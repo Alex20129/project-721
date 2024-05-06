@@ -10,6 +10,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     firmwareData=new(QByteArray);
 
+	DeviceList=new QVector <ASICDevice *>;
+
     ColumnTitles=new QStringList({"Address", "Type", "Miner", "HashRate", "Temperature", "Frequency", "Uptime", "Hardware Errors", "Pool", "User", "OC Profile"});
 
     RefreshTimer=new(QTimer);
@@ -189,12 +191,12 @@ void MainWindow::saveTabs()
         Groups.append(TabObject);
         gAppConfig->JSONData.insert("groups", Groups);
     }
-    for(device=0; device<GlobalDeviceList.count(); device++)
+	for(device=0; device<DeviceList->count(); device++)
     {
         QJsonObject DeviceObject;
-        DeviceObject.insert("address", GlobalDeviceList.at(device)->Address.toString());
-        DeviceObject.insert("description", GlobalDeviceList.at(device)->Description);
-        DeviceObject.insert("group", QJsonValue::fromVariant(GlobalDeviceList.at(device)->GroupID));
+		DeviceObject.insert("address", DeviceList->at(device)->Address.toString());
+		DeviceObject.insert("description", DeviceList->at(device)->Description);
+		DeviceObject.insert("group", QJsonValue::fromVariant(DeviceList->at(device)->GroupID));
         Devices.append(DeviceObject);
         gAppConfig->JSONData.insert("devices", Devices);
     }
@@ -438,7 +440,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::rescanDevices()
 {
-    sw->QuickAPIScan(GlobalDeviceList);
+	sw->QuickAPIScan(DeviceList);
 }
 
 void MainWindow::updateDeviceView()
@@ -628,7 +630,7 @@ void MainWindow::addNewGroup(QString title, QString description, QString usernam
     if(0==GroupsCount)
     {
         delete(qweWidget->DeviceList);
-        qweWidget->DeviceList=&GlobalDeviceList;
+		qweWidget->DeviceList=DeviceList;
         DefaultTabWidget=qweWidget;
     }
     QAction *qweAction=new QAction(title, qweWidget);
