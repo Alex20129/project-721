@@ -25,8 +25,9 @@ int main(int argc, char *argv[])
 
     QApplication a(argc, argv);
 
-    gAppLogger=new Logger;
-    gAppLogger->Log("Log initiated...");
+	gLogger=new Logger;
+	gLogger->SetLogFilePath(PROGRAM_SHORT_NAME ".log");
+	gLogger->Log("Log initiated...", LOG_INFO);
 
     bsw=new BasicSettingsWindow;
     nsw=new NetworkSettingsWindow;
@@ -37,7 +38,7 @@ int main(int argc, char *argv[])
     ssw=new SleepSettingsWindow;
     mw=new MainWindow;
 
-    gAppLogger->Log("Start now");
+	gLogger->Log("Start now", LOG_INFO);
     mw->show();
 
     ret=a.exec();

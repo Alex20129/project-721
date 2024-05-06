@@ -1,80 +1,158 @@
-#include <QDateTime>
+#include <ctime>
+#include <cstring>
 #include "logger.hpp"
 #include "main.hpp"
 
-Logger *gAppLogger;
+uint8_t Logger::pLogLevel=LOG_DEBUG;
+bool Logger::pLogFileEnabled=true;
+mutex *Logger::pLogMutex=nullptr;
 
-// LOG_EMERG | LOG_ALERT | LOG_CRITICAL | LOG_ERROR | LOG_WARNING | LOG_NOTICE | LOG_INFO | LOG_DEBUG;
-unsigned int Logger::LogSettings=LOG_EMERG | LOG_ALERT | LOG_CRITICAL | LOG_ERROR | LOG_WARNING | LOG_NOTICE;
-bool Logger::LogFileEnabled=true;
-bool Logger::pIsBusy=false;
+Logger *gLogger=nullptr;
+
+const char mgstypestring[8][10]=
+{
+	"EMERGENCY",
+	"ALERT",
+	"CRITICAL",
+	"ERROR",
+	"WARNING",
+	"NOTICE",
+	"INFO",
+	"DEBUG"
+};
 
 Logger::Logger()
 {
-    pLogFilePath=new char[256];
-    sprintf(pLogFilePath, "%.255s.log", PROGRAM_NAME);
-    pLogFile=fopen(pLogFilePath, "a");
+	if(!pLogMutex)
+	{
+		pLogMutex=new mutex;
+	}
+	if(!gLogger)
+	{
+		gLogger=this;
+	}
+	pSysLogEnabled=false;
+	pLogFilePath.clear();
+	pLogFile=nullptr;
 }
 
 Logger::~Logger()
 {
-    if(pLogFile)
-    {
-        fclose(pLogFile);
-    }
+	if(pLogFile)
+	{
+		fclose(pLogFile);
+		pLogFile=nullptr;
+	}
 }
 
-void Logger::SetLogFilePath(const char *newPath)
+uint8_t Logger::LogLevel() const
 {
-    if(strlen(newPath))
-    {
-        pIsBusy=true;
-        sprintf(pLogFilePath, "%.255s", newPath);
-        if(pLogFile)
-        {
-            fclose(pLogFile);
-        }
-        pLogFile=fopen(pLogFilePath, "a");
-        pIsBusy=false;
-    }
+	return(pLogLevel);
 }
 
-void Logger::SetLogFilePath(QString newPath)
+void Logger::SetLogLevel(uint8_t log_level)
 {
-    if(!newPath.isEmpty())
-    {
-        SetLogFilePath(newPath.toStdString().data());
-    }
+	if(log_level>LOG_DEBUG)
+	{
+		log_level=LOG_DEBUG;
+	}
+	pLogMutex->lock();
+	pLogLevel=log_level;
+	pLogMutex->unlock();
 }
 
-void Logger::Log(const char *message, unsigned int level)
+bool Logger::LogFileEnabled() const
 {
-    if(!(level&LogSettings))
-    {
-        return;
-    }
-    while(pIsBusy)
-    {
-        QCoreApplication::processEvents();
-    }
-    pIsBusy=true;
-    pCurrDTstring=QDateTime::currentDateTime().toString("dd.MM.yyyy | hh:mm:ss");
-    if(pLogFile && LogFileEnabled)
-    {
-        fprintf(pLogFile, "%s %s\n", pCurrDTstring.toStdString().data(), message);
-        fflush(pLogFile);
-    }
-    fprintf(stdout, "%s %s\n", pCurrDTstring.toStdString().data(), message);
-    fflush(stdout);
-    pIsBusy=false;
+	return(pLogFileEnabled);
 }
 
-void Logger::Log(QByteArray message, unsigned int level)
+void Logger::SetLogFileEnabled(bool enabled)
 {
-    Log(message.data(), level);
+	pLogMutex->lock();
+	pLogFileEnabled=enabled;
+	pLogMutex->unlock();
 }
 
-void Logger::Log(QString message, unsigned int level)
+string Logger::LogFilePath() const
 {
-    Log(message.toStdString().data(), level);
+	return(pLogFilePath);
 }
+
+void Logger::SetLogFilePath(const string newPath)
+{
+	if(newPath.length()==0)
+	{
+		return;
+	}
+	pLogMutex->lock();
+	pLogFilePath=newPath;
+	pLogMutex->unlock();
+}
+
+bool Logger::SysLogEnabled() const
+{
+	return(pSysLogEnabled);
+}
+
+void Logger::SetSysLogEnabled(bool enabled)
+{
+	pLogMutex->lock();
+	pSysLogEnabled=enabled;
+	pLogMutex->unlock();
+}
+
+void Logger::Log(const char *message, uint8_t msg_level)
+{
+	if(!message)
+	{
+		return;
+	}
+	if(msg_level>pLogLevel)
+	{
+		return;
+	}
+	string msg(message);
+	if(0==msg.length())
+	{
+		return;
+	}
+	Log(msg, msg_level);
+}
+
+void Logger::Log(const string message, uint8_t msg_level)
+{
+	if(msg_level>pLogLevel)
+	{
+		return;
+	}
+	if(0==message.length())
+	{
+		return;
+	}
+	setlocale(LC_NUMERIC, "C");
+	pLogMutex->lock();
+	time(&pRawTime);
+	pTimeInfo=localtime(&pRawTime);
+	sprintf(pLogDTstr, "%.2i/%.2i/%i %.2i:%.2i:%.2i", pTimeInfo->tm_mday, 1+pTimeInfo->tm_mon, 1900+pTimeInfo->tm_year, pTimeInfo->tm_hour, pTimeInfo->tm_min, pTimeInfo->tm_sec);
+	fprintf(stdout, "%s [%s] %s\n", pLogDTstr, mgstypestring[msg_level], message.data());
+	fflush(stdout);
+	if(pLogFileEnabled)
+	{
+		pLogFile=fopen(pLogFilePath.data(), "a");
+		if(pLogFile)
+		{
+			fprintf(pLogFile, "%s [%s] %s\n", pLogDTstr, mgstypestring[msg_level], message.data());
+			fflush(pLogFile);
+			fclose(pLogFile);
+			pLogFile=nullptr;
+		}
+	}
+#if defined(__linux__)
+	if(pSysLogEnabled)
+	{
+		syslog(msg_level, "%s %s", pLogDTstr, message.data());
+	}
+#endif
+	pLogMutex->unlock();
+}
+

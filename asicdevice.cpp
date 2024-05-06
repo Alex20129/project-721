@@ -81,8 +81,8 @@ void ASICDevice::ExecCGIScriptViaGET(QString path, QUrlQuery query)
     {
         ScriptURL.setQuery(query);
     }
-    //gAppLogger->Log("sending GET request to");
-    //gAppLogger->Log(ScriptURL.toString());
+	//gLogger->Log("sending GET request to");
+	//gLogger->Log(ScriptURL.toString());
     QNetworkRequest ExecRequest;
     ExecRequest.setUrl(ScriptURL);
     ExecRequest.setHeader(QNetworkRequest::UserAgentHeader, API_HEADER_USER_AGENT);
@@ -108,8 +108,8 @@ void ASICDevice::UploadDataViaPOST(QString path, QByteArray *DataToSend)
     QNetworkAccessManager *netManager=new(QNetworkAccessManager);
     connect(netManager, SIGNAL(finished(QNetworkReply *)), this, SLOT(onNetManagerFinished(QNetworkReply *)));
     connect(netManager, SIGNAL(authenticationRequired(QNetworkReply *, QAuthenticator *)), this, SLOT(onAuthenticationNeeded(QNetworkReply *, QAuthenticator *)));
-    //gAppLogger->Log("sending POST request to");
-    //gAppLogger->Log(deviceURL.toString());
+	//gLogger->Log("sending POST request to");
+	//gLogger->Log(deviceURL.toString());
     netManager->post(setingsRequest, *DataToSend);
 }
 
@@ -118,17 +118,17 @@ void ASICDevice::onNetManagerFinished(QNetworkReply *reply)
     QByteArray ReceivedData;
     if(reply->error()==QNetworkReply::NoError)
     {
-        gAppLogger->Log("ASICDevice::onNetManagerFinished reply success");
+		gLogger->Log("ASICDevice::onNetManagerFinished reply success", LOG_INFO);
     }
     else
     {
-        gAppLogger->Log("ASICDevice::onNetManagerFinished reply error");
-        gAppLogger->Log(reply->errorString());
+		gLogger->Log("ASICDevice::onNetManagerFinished reply error", LOG_ERR);
+		gLogger->Log(reply->errorString().toStdString(), LOG_ERR);
     }
     QVariant statusCode=reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
     if(statusCode.isValid())
     {
-        gAppLogger->Log(Address.toString()+QString(" HttpStatusCode=")+QString::number(statusCode.toUInt()));
+		gLogger->Log(Address.toString().toStdString()+" HttpStatusCode="+to_string(statusCode.toInt()), LOG_INFO);
     }
     if(reply->isReadable())
     {
@@ -142,12 +142,12 @@ void ASICDevice::onAuthenticationNeeded(QNetworkReply *reply, QAuthenticator *au
 {
     if(reply->error()==QNetworkReply::NoError)
     {
-        //gAppLogger->Log("ASICDevice::onAuthenticationNeeded reply success");
+		//gLogger->Log("ASICDevice::onAuthenticationNeeded reply success", LOG_INFO);
     }
     else
     {
-        //gAppLogger->Log("ASICDevice::onAuthenticationNeeded reply error");
-        //gAppLogger->Log(reply->errorString());
+//		gLogger->Log("ASICDevice::onAuthenticationNeeded reply error", LOG_ERR);
+		//gLogger->Log(reply->errorString(), LOG_ERR);
     }
     authenticator->setPassword(Password);
     authenticator->setUser(UserName);
@@ -155,8 +155,7 @@ void ASICDevice::onAuthenticationNeeded(QNetworkReply *reply, QAuthenticator *au
 
 void ASICDevice::SendCommand(QByteArray command)
 {
-    gAppLogger->Log(QString("ASICDevice::SendCommand ")+
-                   command);
+	gLogger->Log("ASICDevice::SendCommand "+command.toStdString(), LOG_DEBUG);
     if(command.isEmpty())
     {
         return;
@@ -173,7 +172,7 @@ void ASICDevice::CommandLoop()
     }
     _pIsBusy=true;
     ASICDevice::ActiveThreadsNum++;
-    //gAppLogger->Log(QString("ASICDevice::ActiveThreadsNum ")+QString::number(ActiveThreadsNum));
+	//gLogger->Log(QString("ASICDevice::ActiveThreadsNum ")+QString::number(ActiveThreadsNum));
     if(_pDevSocket->state()==QAbstractSocket::UnconnectedState)
     {
         ThreadTimer->setInterval(gAppConfig->ThreadLifeTime);
@@ -184,7 +183,7 @@ void ASICDevice::CommandLoop()
 
 void ASICDevice::on_socketConnected()
 {
-    gAppLogger->Log(QString("ASICDevice::on_socketConnected ")+Address.toString());
+	gLogger->Log("ASICDevice::on_socketConnected "+Address.toString().toStdString(), LOG_DEBUG);
     emit(SocketConnected(this));
     if(_pPendingCommands->count())
     {
@@ -195,13 +194,13 @@ void ASICDevice::on_socketConnected()
 
 void ASICDevice::on_socketDisconnected()
 {
-    //gAppLogger->Log(QString("ASICDevice::on_socketDisconnected ")+Address.toString());
+	gLogger->Log("ASICDevice::on_socketDisconnected "+Address.toString().toStdString(), LOG_DEBUG);
     ThreadTimer->stop();
     if(_pIsBusy)
     {
         _pIsBusy=false;
         ASICDevice::ActiveThreadsNum--;
-        //gAppLogger->Log(QString("ASICDevice::ActiveThreadsNum ")+QString::number(ActiveThreadsNum));
+//		gLogger->Log("ASICDevice::ActiveThreadsNum "+to_string(ActiveThreadsNum), LOG_DEBUG);
     }
     if(_pPendingCommands->count())
     {
@@ -211,13 +210,13 @@ void ASICDevice::on_socketDisconnected()
 
 void ASICDevice::on_socketTimeout()
 {
-    gAppLogger->Log(QString("ASICDevice::on_socketTimeout ")+Address.toString());
+	gLogger->Log("ASICDevice::on_socketTimeout "+Address.toString().toStdString(), LOG_DEBUG);
     ThreadTimer->stop();
     if(_pIsBusy)
     {
         _pIsBusy=false;
         ASICDevice::ActiveThreadsNum--;
-        //gAppLogger->Log(QString("ASICDevice::ActiveThreadsNum ")+QString::number(ActiveThreadsNum));
+//		gLogger->Log("ASICDevice::ActiveThreadsNum "+to_string(ActiveThreadsNum), LOG_DEBUG);
     }
     if(_pDevSocket->state())
     {
@@ -231,16 +230,16 @@ void ASICDevice::on_socketTimeout()
 
 void ASICDevice::on_socketError(QAbstractSocket::SocketError error)
 {
-    gAppLogger->Log(QString("ASICDevice::on_socketError ")+Address.toString());
-    gAppLogger->Log(_pDevSocket->errorString()+
-                   QString(" (SocketError code ")+
-                   QString::number(error)+
-                   QString(")"));
+	gLogger->Log("ASICDevice::on_socketError "+Address.toString().toStdString(), LOG_DEBUG);
+	gLogger->Log(_pDevSocket->errorString().toStdString()+
+				(" (SocketError code ")+
+				 to_string(error)+
+				 (")"), LOG_DEBUG);
     if(_pIsBusy)
     {
         _pIsBusy=false;
         ASICDevice::ActiveThreadsNum--;
-        //gAppLogger->Log(QString("ASICDevice::ActiveThreadsNum ")+QString::number(ActiveThreadsNum));
+//		gLogger->Log("ASICDevice::ActiveThreadsNum "+to_string(ActiveThreadsNum), LOG_DEBUG);
     }
     /*
     if(DevSocket->state())
@@ -257,8 +256,8 @@ void ASICDevice::on_socketError(QAbstractSocket::SocketError error)
 
 void ASICDevice::readTcpData()
 {
-    gAppLogger->Log(QString("ASICDevice::readTcpData ")+Address.toString());
-    gAppLogger->Log(*_pReceivedTCPData);
+	gLogger->Log("ASICDevice::readTcpData "+Address.toString().toStdString(), LOG_DEBUG);
+	gLogger->Log(_pReceivedTCPData->toStdString(), LOG_DEBUG);
     if(_pReceivedTCPData->at(_pReceivedTCPData->length()-1)==0 &&
        _pReceivedTCPData->at(_pReceivedTCPData->length()-2)==124)
     {

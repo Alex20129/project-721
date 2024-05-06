@@ -39,8 +39,8 @@ void ScannerWindow::keyPressEvent(QKeyEvent *event)
 
 void ScannerWindow::updateDeviceList(ASICDevice *device)
 {
-    gAppLogger->Log("ScannerWindow::updateDeviceList()", LOG_DEBUG);
-    gAppLogger->Log(device->Address.toString());
+	gLogger->Log("ScannerWindow::updateDeviceList()", LOG_DEBUG);
+	gLogger->Log(device->Address.toString().toStdString(), LOG_DEBUG);
     disconnect(device, nullptr, nullptr, nullptr);
     mw->DefaultTabWidget->addDevice(device);
     ui->ipList->addItem(device->Address.toString());
@@ -48,27 +48,27 @@ void ScannerWindow::updateDeviceList(ASICDevice *device)
 
 void ScannerWindow::clearUpDeviceList(ASICDevice *device)
 {
-    gAppLogger->Log("ScannerWindow::clearUpDeviceList()", LOG_DEBUG);
-    gAppLogger->Log(device->Address.toString());
+	gLogger->Log("ScannerWindow::clearUpDeviceList()", LOG_DEBUG);
+	gLogger->Log(device->Address.toString().toStdString(), LOG_DEBUG);
     disconnect(device, nullptr, nullptr, nullptr);
     device->deleteLater();
 }
 
 void ScannerWindow::on_scanIsDone()
 {
-    gAppLogger->Log("ScannerWindow::on_scanIsDone()", LOG_DEBUG);
+	gLogger->Log("ScannerWindow::on_scanIsDone()", LOG_DEBUG);
     ui->apiScanButton->setEnabled(1);
 }
 
 void ScannerWindow::on_scanIsRun()
 {
-    gAppLogger->Log("ScannerWindow::on_scanIsRun()", LOG_DEBUG);
+	gLogger->Log("ScannerWindow::on_scanIsRun()", LOG_DEBUG);
     ui->apiScanButton->setEnabled(0);
 }
 
 void ScannerWindow::QuickAPIScan(QVector <ASICDevice *> devicesToCheck)
 {
-    gAppLogger->Log("ScannerWindow::QuickAPIScan()", LOG_DEBUG);
+	gLogger->Log("ScannerWindow::QuickAPIScan()", LOG_DEBUG);
     if(_pIsBusy)
     {
         return;
@@ -78,8 +78,7 @@ void ScannerWindow::QuickAPIScan(QVector <ASICDevice *> devicesToCheck)
     emit(ScanIsRun());
     if(devicesToCheck.isEmpty())
     {
-        gAppLogger->Log("ScannerWindow::QuickAPIScan");
-        gAppLogger->Log("Host list is empty =/");
+		gLogger->Log("Host list is empty =/", LOG_NOTICE);
         emit(ScanIsDone());
         return;
     }

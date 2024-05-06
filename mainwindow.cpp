@@ -411,7 +411,7 @@ void MainWindow::setOCProfile()
     }
     if(HostsToOC.isEmpty())
     {
-        gAppLogger->Log("Host list is empty =/");
+		gLogger->Log("Host list is empty =/", LOG_NOTICE);
         return;
     }
     for(int host=0; host<HostsToOC.count(); host++)
@@ -648,7 +648,7 @@ void MainWindow::on_rebootButton_clicked()
     }
     if(HostsToReboot.isEmpty())
     {
-        gAppLogger->Log("Host list is empty =/");
+		gLogger->Log("Host list is empty =/", LOG_NOTICE);
         return;
     }
     for(int host=0; host<HostsToReboot.count(); host++)
@@ -663,14 +663,11 @@ void MainWindow::on_rebootButton_clicked()
         }
         if(!PickedDevice)
         {
-            gAppLogger->Log("cannot find the device with address");
-            gAppLogger->Log(HostsToReboot.at(host));
-            gAppLogger->Log("continue...");
+			gLogger->Log("cannot find the device with address "+HostsToReboot.at(host).toStdString(), LOG_INFO);
+			gLogger->Log("continue...", LOG_INFO);
             continue;
         }
-        gAppLogger->Log("now reboot device");
-        gAppLogger->Log(PickedDevice->Address.toString());
-
+		gLogger->Log("now reboot device "+PickedDevice->Address.toString().toStdString(), LOG_INFO);
 		PickedDevice->ExecCGIScriptViaGET("/cgi-bin/reboot.cgi");
     }
 }
@@ -689,7 +686,7 @@ void MainWindow::addDevicesToGroup()
     }
     if(HostsToAdd.isEmpty())
     {
-        gAppLogger->Log("Host list is empty =/");
+		gLogger->Log("Host list is empty =/", LOG_NOTICE);
         return;
     }
     for(int host=0; host<HostsToAdd.count(); host++)
@@ -717,20 +714,19 @@ void MainWindow::on_firmwareButton_clicked()
     firmwareFile=new QFile(QFileDialog::getOpenFileName(this, "Choose firmware...", "", "Tar-GZip archive (*.tar.gz);; Tar-BZip2 archive (*.tar.bz2)"));
     if(firmwareFile->fileName().isEmpty())
     {
-        gAppLogger->Log("Filename is empty =/");
+		gLogger->Log("Filename is empty =/", LOG_NOTICE);
         return;
     }
     if(!firmwareFile->open(QIODevice::ReadOnly))
     {
-        gAppLogger->Log("Cannot open the file =\\");
-        gAppLogger->Log(firmwareFile->errorString());
+		gLogger->Log("Cannot open the file =/", LOG_ERR);
+		gLogger->Log(firmwareFile->errorString().toStdString(), LOG_ERR);
         return;
     }
     *firmwareData=firmwareFile->readAll();
 
     firmwareFile->close();
-    gAppLogger->Log("Firmware has been loaded from");
-    gAppLogger->Log(firmwareFile->fileName());
+	gLogger->Log("Firmware has been loaded from "+firmwareFile->fileName().toStdString(), LOG_INFO);
     delete(firmwareFile);
 
     ASICTableWidget *ctw=qobject_cast<ASICTableWidget *>(ui->tabWidget->currentWidget());
@@ -741,7 +737,7 @@ void MainWindow::on_firmwareButton_clicked()
     }
     if(HostsToFlash.isEmpty())
     {
-        gAppLogger->Log("Host list is empty =/");
+		gLogger->Log("Host list is empty =/", LOG_NOTICE);
         return;
     }
     ui->progressBar->setVisible(true);
@@ -805,10 +801,10 @@ void MainWindow::uploadFirmware(ASICDevice *device)
 
 void MainWindow::authenticationHandler(QNetworkReply *repl, QAuthenticator *auth)
 {
-    qInfo()<<"authenticationHandler";
-    qInfo()<<repl->url();
-    qInfo()<<auth->user();
-    qInfo()<<auth->password();
+	gLogger->Log("MainWindow::authenticationHandler", LOG_DEBUG);
+	gLogger->Log(repl->url().toString().toStdString(), LOG_DEBUG);
+	gLogger->Log(auth->user().toStdString(), LOG_DEBUG);
+	gLogger->Log(auth->password().toStdString(), LOG_DEBUG);
 }
 
 void MainWindow::uploadFirmwareFinished(QNetworkReply *reply)
@@ -821,22 +817,20 @@ void MainWindow::uploadFirmwareFinished(QNetworkReply *reply)
     }
     if(reply->error()==QNetworkReply::NoError)
     {
-        gAppLogger->Log("MainWindow::uploadFirmwareFinished reply success");
+		gLogger->Log("MainWindow::uploadFirmwareFinished reply success", LOG_INFO);
     }
     else
     {
-        gAppLogger->Log("MainWindow::uploadFirmwareFinished reply error");
-        gAppLogger->Log(reply->errorString());
+		gLogger->Log("MainWindow::uploadFirmwareFinished reply error: "+reply->errorString().toStdString(), LOG_ERR);
     }
+	gLogger->Log(ReceivedData.toStdString(), LOG_DEBUG);
     reply->manager()->disconnect();
     reply->manager()->deleteLater();
-    gAppLogger->Log(QString(ReceivedData));
     for(int device=0; device<DefaultTabWidget->DeviceList->count(); device++)
     {
         if(reply->request().url().host()==DefaultTabWidget->DeviceList->at(device)->Address.toString())
         {
-            gAppLogger->Log("now reboot device");
-            gAppLogger->Log(reply->request().url().host());
+			gLogger->Log("now reboot device "+reply->request().url().host().toStdString(), LOG_INFO);
             DefaultTabWidget->DeviceList->at(device)->ExecCGIScriptViaGET("/cgi-bin/reboot.cgi");
             break;
         }
@@ -860,7 +854,7 @@ void MainWindow::on_actionReset_to_default_triggered()
     }
     if(HostsToReset.isEmpty())
     {
-        gAppLogger->Log("Host list is empty =/");
+		gLogger->Log("Host list is empty =/", LOG_NOTICE);
         return;
     }
     for(int host=0; host<HostsToReset.count(); host++)
@@ -869,8 +863,7 @@ void MainWindow::on_actionReset_to_default_triggered()
         {
             if(HostsToReset.at(host)==DefaultTabWidget->DeviceList->at(device)->Address.toString())
             {
-                gAppLogger->Log("now reset the device");
-                gAppLogger->Log(HostsToReset.at(host));
+				gLogger->Log("now reset device "+HostsToReset.at(host).toStdString(), LOG_INFO);
                 DefaultTabWidget->DeviceList->at(device)->ExecCGIScriptViaGET("/cgi-bin/reset_conf.cgi");
                 break;
             }
@@ -912,7 +905,7 @@ void MainWindow::on_actionRemove_devices_from_group_triggered()
     }
     if(HostsToRemove.isEmpty())
     {
-        gAppLogger->Log("Host list is empty =/");
+		gLogger->Log("Host list is empty =/", LOG_NOTICE);
         return;
     }
     for(int host=0; host<HostsToRemove.count(); host++)
@@ -921,8 +914,7 @@ void MainWindow::on_actionRemove_devices_from_group_triggered()
         {
             if(HostsToRemove.at(host)==DefaultTabWidget->DeviceList->at(device)->Address.toString())
             {
-                gAppLogger->Log("now remove the device");
-                gAppLogger->Log(HostsToRemove.at(host));
+				gLogger->Log("now remove the device"+HostsToRemove.at(host).toStdString(), LOG_INFO);
                 ASICDevice *deviceToRemove=DefaultTabWidget->DeviceList->at(device);
                 if(ctw==DefaultTabWidget)
                 {
@@ -965,7 +957,7 @@ void MainWindow::uploadSettings(QStringList settings)
     }
     if(HostsToSetup.isEmpty())
     {
-        gAppLogger->Log("Host list is empty =/");
+		gLogger->Log("Host list is empty =/", LOG_NOTICE);
         return;
     }
     int setting;
@@ -987,9 +979,7 @@ void MainWindow::uploadSettings(QStringList settings)
         }
         if(!PickedDevice)
         {
-            gAppLogger->Log("cannot find the device with address");
-            gAppLogger->Log(HostsToSetup.at(host));
-            gAppLogger->Log("continue...");
+			gLogger->Log("cannot find the device with address "+HostsToSetup.at(host).toStdString(), LOG_INFO);
             continue;
         }
 
@@ -1065,7 +1055,7 @@ void MainWindow::uploadSettings(QStringList settings)
             }
         }
 
-		gAppLogger->Log(PickedDevice->Address.toString()+" will be configured now");
+		gLogger->Log(PickedDevice->Address.toString().toStdString()+" will be configured now", LOG_INFO);
 		PickedDevice->UploadDataViaPOST("/cgi-bin/set_miner_conf.cgi", &DataToSend);
 		PickedDevice->ExecCGIScriptViaGET("/cgi-bin/reboot.cgi");
     }
@@ -1080,12 +1070,12 @@ void MainWindow::on_tabWidget_tabCloseRequested(int index)
 void MainWindow::on_tabWidget_tabBarDoubleClicked(int index)
 {
     ASICTableWidget *ctw=qobject_cast<ASICTableWidget *>(ui->tabWidget->currentWidget());
-    gAppLogger->Log("tab was double-clicked");
-    gAppLogger->Log(QString("tab index '")+QString::number(index)+QString("'"));
-    gAppLogger->Log(QString("tab Title '")+ctw->Title+QString("'"));
-    gAppLogger->Log(QString("tab Description '")+ctw->Description+QString("'"));
-    gAppLogger->Log(QString("tab UserName '")+ctw->UserName+QString("'"));
-    gAppLogger->Log(QString("tab Password '")+ctw->Password+QString("'"));
+	gLogger->Log("tab was double-clicked", LOG_DEBUG);
+	gLogger->Log("tab index '"+to_string(index)+"'", LOG_DEBUG);
+	gLogger->Log("tab Title '"+ctw->Title.toStdString()+"'", LOG_DEBUG);
+	gLogger->Log("tab Description '"+ctw->Description.toStdString()+"'", LOG_DEBUG);
+	gLogger->Log("tab UserName '"+ctw->UserName.toStdString()+"'", LOG_DEBUG);
+	gLogger->Log("tab Password '"+ctw->Password.toStdString()+"'", LOG_DEBUG);
 }
 
 void MainWindow::on_actionSupport_website_triggered()

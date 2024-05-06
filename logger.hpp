@@ -1,36 +1,53 @@
 #ifndef LOGGER_HPP
 #define LOGGER_HPP
 
-#include <QString>
+#include <string>
+#include <mutex>
 
-#define	LOG_EMERG		1	/* system is unusable */
-#define	LOG_ALERT		2	/* action must be taken immediately */
-#define	LOG_CRITICAL	4	/* critical conditions */
-#define	LOG_ERROR		8	/* error conditions */
-#define	LOG_WARNING		16	/* warning conditions */
-#define	LOG_NOTICE		32	/* normal but significant condition */
-#define	LOG_INFO		64	/* informational */
-#define	LOG_DEBUG		128	/* debug-level messages */
+#if defined(__linux__)
+#include <sys/syslog.h>
+#endif
+
+#if !defined(_SYS_SYSLOG_H)
+#define	LOG_EMERG	0	/* system is unusable */
+#define	LOG_ALERT	1	/* action must be taken immediately */
+#define	LOG_CRIT	2	/* critical conditions */
+#define	LOG_ERR		3	/* error conditions */
+#define	LOG_WARNING	4	/* warning conditions */
+#define	LOG_NOTICE	5	/* normal but significant condition */
+#define	LOG_INFO	6	/* informational */
+#define	LOG_DEBUG	7	/* debug-level messages */
+#endif
+
+using namespace std;
 
 class Logger
 {
 public:
-    Logger();
-    ~Logger();
-    void SetLogFilePath(const char *newPath);
-    void SetLogFilePath(QString newPath);
-    void Log(const char *message, unsigned int level=LOG_INFO);
-    void Log(QByteArray message, unsigned int level=LOG_INFO);
-    void Log(QString message, unsigned int level=LOG_INFO);
-    static unsigned int LogSettings;
-    static bool LogFileEnabled;
+	Logger();
+	~Logger();
+	uint8_t LogLevel() const;
+	void SetLogLevel(uint8_t log_level);
+	bool LogFileEnabled() const;
+	void SetLogFileEnabled(bool enabled);
+	string LogFilePath() const;
+	void SetLogFilePath(const string newPath);
+	bool SysLogEnabled() const;
+	void SetSysLogEnabled(bool enabled);
+	void Log(const char *message, uint8_t msg_level);
+	void Log(const string message, uint8_t msg_level);
 private:
-    static bool pIsBusy;
-    char *pLogFilePath;
+	static uint8_t pLogLevel;
+	static bool pLogFileEnabled;
+	static mutex *pLogMutex;
+	string pLogFilePath;
+	bool pSysLogEnabled;
+	char pLogDTstr[256];
+	time_t pRawTime;
+	tm *pTimeInfo;
     FILE *pLogFile;
-    QString pCurrDTstring;
 };
 
-extern Logger *gAppLogger;
+extern Logger *gLogger;
 
 #endif // LOGGER_HPP
