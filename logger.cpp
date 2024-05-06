@@ -107,15 +107,7 @@ void Logger::Log(const char *message, uint8_t msg_level)
 	{
 		return;
 	}
-	if(msg_level>pLogLevel)
-	{
-		return;
-	}
 	string msg(message);
-	if(0==msg.length())
-	{
-		return;
-	}
 	Log(msg, msg_level);
 }
 
