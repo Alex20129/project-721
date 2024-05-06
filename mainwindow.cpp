@@ -1,10 +1,11 @@
 #include "mainwindow.h"
-#include "logger.hpp"
 #include "ui_mainwindow.h"
+#include "logger.hpp"
 #include "main.hpp"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
     ActiveUploadingThreads=0;
     GroupsCount=0;
 
@@ -60,12 +61,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 MainWindow::~MainWindow()
 {
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
     delete(RefreshTimer);
     delete ui;
 }
 
 void MainWindow::sleepOrWake()
 {
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
     if(QTime::currentTime()>gAppConfig->TimeToSleep &&
        QTime::currentTime()<gAppConfig->TimeToWakeUp)
     {
@@ -79,6 +82,7 @@ void MainWindow::sleepOrWake()
 
 void MainWindow::on_timeToSleep()
 {
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
     if(!IsAwake)
     {
         return;
@@ -105,6 +109,7 @@ void MainWindow::on_timeToSleep()
 
 void MainWindow::on_timeToWakeUp()
 {
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
     if(IsAwake)
     {
         return;
@@ -131,6 +136,7 @@ void MainWindow::on_timeToWakeUp()
 
 int MainWindow::loadTabs()
 {
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
     int tabsCount=0, tab;
     if(gAppConfig->JSONData.value("groups").isArray())
     {
@@ -174,6 +180,7 @@ int MainWindow::loadTabs()
 
 void MainWindow::saveTabs()
 {
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
     int tab, device;
     gAppConfig->JSONData.remove("groups");
     gAppConfig->JSONData.remove("devices");
@@ -204,6 +211,7 @@ void MainWindow::saveTabs()
 
 void MainWindow::loadProfiles()
 {
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
     int profilesCount, profile;
 
     gAppConfig->JSONData.remove("profiles_S9");
@@ -403,6 +411,7 @@ void MainWindow::loadProfiles()
 
 void MainWindow::setOCProfile()
 {
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
     ASICTableWidget *ctw=qobject_cast<ASICTableWidget *>(ui->tabWidget->currentWidget());
     QAction *senderAction=qobject_cast<QAction *>(sender());
 
@@ -431,6 +440,7 @@ void MainWindow::setOCProfile()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
     if(event->isAccepted())
     {
         saveTabs();
@@ -440,11 +450,13 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::rescanDevices()
 {
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
 	sw->QuickAPIScan(DeviceList);
 }
 
 void MainWindow::updateDeviceView()
 {
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
     ASICTableWidget *catw=qobject_cast<ASICTableWidget *>(ui->tabWidget->currentWidget());
     if(!catw)
     {
@@ -561,6 +573,7 @@ void MainWindow::updateDeviceView()
 
 void MainWindow::on_updateButton_clicked()
 {
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
     RefreshTimer->setInterval(gAppConfig->UpdateInterval);
     if(ui->updateButton->isFlat())
     {
@@ -576,6 +589,7 @@ void MainWindow::on_updateButton_clicked()
 
 void MainWindow::addNewDevices(QString addressFrom, QString addressTo)
 {
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
     QHostAddress AddrFrom(addressFrom), AddrTo(addressTo);
     if(AddrTo.toIPv4Address()>AddrFrom.toIPv4Address())
     {
@@ -597,6 +611,7 @@ void MainWindow::addNewDevices(QString addressFrom, QString addressTo)
 
 void MainWindow::addNewGroup(QString title, QString description, QString username, QString password, quint16 apiport, quint16 webport)
 {
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
     ASICTableWidget *qweWidget=new ASICTableWidget(this);
     qweWidget->setSortingEnabled(true);
     qweWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -641,6 +656,7 @@ void MainWindow::addNewGroup(QString title, QString description, QString usernam
 
 void MainWindow::on_rebootButton_clicked()
 {
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
     ASICTableWidget *ctw=qobject_cast<ASICTableWidget *>(ui->tabWidget->currentWidget());
     QStringList HostsToReboot;
     ASICDevice *PickedDevice;
@@ -676,6 +692,7 @@ void MainWindow::on_rebootButton_clicked()
 
 void MainWindow::addDevicesToGroup()
 {
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
     ASICTableWidget *ctw=qobject_cast<ASICTableWidget *>(ui->tabWidget->currentWidget());
 
     QAction *senderAction=qobject_cast<QAction *>(sender());
@@ -706,12 +723,14 @@ void MainWindow::addDevicesToGroup()
 
 void MainWindow::on_customContextMenuRequested(QPoint position)
 {
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
     Q_UNUSED(position)
     ui->menuControl->exec(QCursor::pos());
 }
 
 void MainWindow::on_firmwareButton_clicked()
 {
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
     QFile *firmwareFile;
     firmwareFile=new QFile(QFileDialog::getOpenFileName(this, "Choose firmware...", "", "Tar-GZip archive (*.tar.gz);; Tar-BZip2 archive (*.tar.bz2)"));
     if(firmwareFile->fileName().isEmpty())
@@ -767,6 +786,7 @@ void MainWindow::on_firmwareButton_clicked()
 
 void MainWindow::uploadFirmware(ASICDevice *device)
 {
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
     QUrl deviceURL;
     deviceURL.setScheme("http");
     deviceURL.setHost(device->Address.toString());
@@ -776,14 +796,15 @@ void MainWindow::uploadFirmware(ASICDevice *device)
     if(gAppConfig->ClearUpSettingsWhenFirmwareUpdate)
     {
         deviceURL.setPath("/cgi-bin/upgrade_clear.cgi");
-        qInfo()<<"[upgrade_clear.cgi]";
+		gLogger->Log("upgrade_clear.cgi", LOG_NOTICE);
     }
     else
     {
         deviceURL.setPath("/cgi-bin/upgrade.cgi");
-        qInfo()<<"[upgrade.cgi]";
+		gLogger->Log("upgrade.cgi", LOG_NOTICE);
     }
-    qInfo()<<"now upload firmware on"<<deviceURL.toString();
+	;
+	gLogger->Log("upload firmware on "+deviceURL.host().toStdString(), LOG_NOTICE);
     QNetworkRequest flashRequest;
     flashRequest.setUrl(deviceURL);
     flashRequest.setHeader(QNetworkRequest::UserAgentHeader, API_HEADER_USER_AGENT);
@@ -803,7 +824,7 @@ void MainWindow::uploadFirmware(ASICDevice *device)
 
 void MainWindow::authenticationHandler(QNetworkReply *repl, QAuthenticator *auth)
 {
-	gLogger->Log("MainWindow::authenticationHandler", LOG_DEBUG);
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
 	gLogger->Log(repl->url().toString().toStdString(), LOG_DEBUG);
 	gLogger->Log(auth->user().toStdString(), LOG_DEBUG);
 	gLogger->Log(auth->password().toStdString(), LOG_DEBUG);
@@ -811,6 +832,7 @@ void MainWindow::authenticationHandler(QNetworkReply *repl, QAuthenticator *auth
 
 void MainWindow::uploadFirmwareFinished(QNetworkReply *reply)
 {
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
     ActiveUploadingThreads--;
     QByteArray ReceivedData;
     if(reply->isReadable())
@@ -819,11 +841,11 @@ void MainWindow::uploadFirmwareFinished(QNetworkReply *reply)
     }
     if(reply->error()==QNetworkReply::NoError)
     {
-		gLogger->Log("MainWindow::uploadFirmwareFinished reply success", LOG_INFO);
+		gLogger->Log("uploadFirmware reply success", LOG_INFO);
     }
     else
     {
-		gLogger->Log("MainWindow::uploadFirmwareFinished reply error: "+reply->errorString().toStdString(), LOG_ERR);
+		gLogger->Log("uploadFirmware reply error: "+reply->errorString().toStdString(), LOG_ERR);
     }
 	gLogger->Log(ReceivedData.toStdString(), LOG_DEBUG);
     reply->manager()->disconnect();
@@ -848,6 +870,7 @@ void MainWindow::uploadFirmwareFinished(QNetworkReply *reply)
 
 void MainWindow::on_actionReset_to_default_triggered()
 {
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
     ASICTableWidget *ctw=qobject_cast<ASICTableWidget *>(ui->tabWidget->currentWidget());
     QStringList HostsToReset;
     for(int i=0; i<ctw->selectionModel()->selectedRows().size(); i++)
@@ -875,6 +898,7 @@ void MainWindow::on_actionReset_to_default_triggered()
 
 void MainWindow::on_actionToggle_fullscreen_triggered()
 {
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
     if(mw->isFullScreen())
     {
         mw->showNormal();
@@ -887,6 +911,7 @@ void MainWindow::on_actionToggle_fullscreen_triggered()
 
 void MainWindow::on_actionGroup_summary_triggered()
 {
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
     if(ui->groupSummary->isVisible())
     {
         ui->groupSummary->setVisible(0);
@@ -899,6 +924,7 @@ void MainWindow::on_actionGroup_summary_triggered()
 
 void MainWindow::on_actionRemove_devices_from_group_triggered()
 {
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
     ASICTableWidget *ctw=qobject_cast<ASICTableWidget *>(ui->tabWidget->currentWidget());
     QStringList HostsToRemove;
     for(int i=0; i<ctw->selectionModel()->selectedRows().size(); i++)
@@ -941,6 +967,7 @@ void MainWindow::on_actionRemove_devices_from_group_triggered()
 
 void MainWindow::uploadSettings(QStringList settings)
 {
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
     ASICTableWidget *ctw=qobject_cast<ASICTableWidget *>(ui->tabWidget->currentWidget());
     QStringList HostsToSetup;
     QByteArray DataToSend;
@@ -1065,14 +1092,15 @@ void MainWindow::uploadSettings(QStringList settings)
 
 void MainWindow::on_tabWidget_tabCloseRequested(int index)
 {
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
     ui->tabWidget->widget(index)->deleteLater();
     ui->tabWidget->removeTab(index);
 }
 
 void MainWindow::on_tabWidget_tabBarDoubleClicked(int index)
 {
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
     ASICTableWidget *ctw=qobject_cast<ASICTableWidget *>(ui->tabWidget->currentWidget());
-	gLogger->Log("tab was double-clicked", LOG_DEBUG);
 	gLogger->Log("tab index '"+to_string(index)+"'", LOG_DEBUG);
 	gLogger->Log("tab Title '"+ctw->Title.toStdString()+"'", LOG_DEBUG);
 	gLogger->Log("tab Description '"+ctw->Description.toStdString()+"'", LOG_DEBUG);
@@ -1082,6 +1110,7 @@ void MainWindow::on_tabWidget_tabBarDoubleClicked(int index)
 
 void MainWindow::on_actionSupport_website_triggered()
 {
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
 	QUrl SupportOnSite("https://www.google.com");
     QDesktopServices::openUrl(SupportOnSite);
 }

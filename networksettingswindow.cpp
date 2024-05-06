@@ -1,10 +1,12 @@
 #include "networksettingswindow.h"
 #include "ui_networksettingswindow.h"
+#include "logger.hpp"
 #include "main.hpp"
 
 NetworkSettingsWindow::NetworkSettingsWindow(QWidget *parent) : QWidget(parent),
     ui(new Ui::NetworkSettingsWindow)
 {
+	gLogger->Log("NetworkSettingsWindow::"+string(__FUNCTION__), LOG_DEBUG);
     ui->setupUi(this);
     ui->updateInterval->setText(QString::number(gAppConfig->UpdateInterval/1000));
     ui->threadsCount->setText(QString::number(gAppConfig->ActiveThreadsMaxNum));
@@ -13,11 +15,13 @@ NetworkSettingsWindow::NetworkSettingsWindow(QWidget *parent) : QWidget(parent),
 
 NetworkSettingsWindow::~NetworkSettingsWindow()
 {
+	gLogger->Log("NetworkSettingsWindow::"+string(__FUNCTION__), LOG_DEBUG);
     delete ui;
 }
 
 void NetworkSettingsWindow::keyPressEvent(QKeyEvent *event)
 {
+	gLogger->Log("NetworkSettingsWindow::"+string(__FUNCTION__), LOG_DEBUG);
     switch(event->key())
     {
         case Qt::Key_Escape:
@@ -29,6 +33,7 @@ void NetworkSettingsWindow::keyPressEvent(QKeyEvent *event)
 
 void NetworkSettingsWindow::on_applyButton_clicked()
 {
+	gLogger->Log("NetworkSettingsWindow::"+string(__FUNCTION__), LOG_DEBUG);
     if(ui->updateInterval->text().toDouble()<1)
     {
         ui->updateInterval->setText("1");
