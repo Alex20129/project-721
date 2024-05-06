@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/project-721.png</file>
+        <file>images/alarm-128.png</file>
+        <file>images/device-128.png</file>
+        <file>images/find-128.png</file>
+        <file>images/fwup-128.png</file>
+        <file>images/lag1-128.png</file>
+        <file>images/lag2-128.png</file>
+        <file>images/lan-128.png</file>
+        <file>images/restart-128.png</file>
+        <file>images/settings-128.png</file>
+        <file>images/time-128.png</file>
+        <file>images/update-128.png</file>
+    </qresource>
+</RCC>

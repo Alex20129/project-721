@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1076</width>
+    <height>545</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>title</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>:/images/project-721.png</normaloff>:/images/project-721.png</iconset>
+  </property>
+  <property name="iconSize">
+   <size>
+    <width>32</width>
+    <height>32</height>
+   </size>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="3" column="5">
+     <widget class="QPushButton" name="updateButton">
+      <property name="text">
+       <string>Update periodically</string>
+      </property>
+      <property name="icon">
+       <iconset resource="project-721.qrc">
+        <normaloff>:/images/update-128.png</normaloff>:/images/update-128.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>32</width>
+        <height>32</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="2">
+     <widget class="QPushButton" name="firmwareButton">
+      <property name="text">
+       <string>Upload firmware</string>
+      </property>
+      <property name="icon">
+       <iconset resource="project-721.qrc">
+        <normaloff>:/images/fwup-128.png</normaloff>:/images/fwup-128.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>32</width>
+        <height>32</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="1">
+     <widget class="QPushButton" name="rebootButton">
+      <property name="text">
+       <string>Reboot</string>
+      </property>
+      <property name="icon">
+       <iconset resource="project-721.qrc">
+        <normaloff>:/images/restart-128.png</normaloff>:/images/restart-128.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>32</width>
+        <height>32</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1" colspan="5">
+     <widget class="QGroupBox" name="groupSummary">
+      <property name="title">
+       <string>Group summary</string>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Total devices (pcs)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="totalDevices">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Total hashrate (TH)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="totalHashrate">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="3" column="4">
+     <widget class="QPushButton" name="deviceSettingsButton">
+      <property name="text">
+       <string>Change device settings</string>
+      </property>
+      <property name="icon">
+       <iconset resource="project-721.qrc">
+        <normaloff>:/images/settings-128.png</normaloff>:/images/settings-128.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>32</width>
+        <height>32</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1" colspan="5">
+     <widget class="QProgressBar" name="progressBar">
+      <property name="visible">
+       <bool>false</bool>
+      </property>
+      <property name="value">
+       <number>42</number>
+      </property>
+      <property name="textVisible">
+       <bool>false</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1" colspan="5">
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>-1</number>
+      </property>
+      <property name="tabsClosable">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="3">
+     <widget class="QPushButton" name="searchButton">
+      <property name="text">
+       <string>Search</string>
+      </property>
+      <property name="icon">
+       <iconset resource="project-721.qrc">
+        <normaloff>:/images/find-128.png</normaloff>:/images/find-128.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>32</width>
+        <height>32</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1076</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="settings">
+    <property name="title">
+     <string>Settin&amp;gs</string>
+    </property>
+    <addaction name="actionBasic_settings"/>
+    <addaction name="actionNetwork_settings"/>
+    <addaction name="actionSleep_settings"/>
+   </widget>
+   <widget class="QMenu" name="menuDevices">
+    <property name="title">
+     <string>Devices</string>
+    </property>
+    <widget class="QMenu" name="menuMove_devices_to">
+     <property name="title">
+      <string>&amp;Move devices to...</string>
+     </property>
+    </widget>
+    <addaction name="actionFind_devices"/>
+    <addaction name="actionAdd_devices"/>
+    <addaction name="actionRemove_devices_from_group"/>
+    <addaction name="actionDelete_devices_completely"/>
+    <addaction name="separator"/>
+    <addaction name="actionAdd_group"/>
+    <addaction name="menuMove_devices_to"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <addaction name="actionToggle_fullscreen"/>
+    <addaction name="actionGroup_summary"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>He&amp;lp</string>
+    </property>
+    <addaction name="actionSupport_website"/>
+   </widget>
+   <widget class="QMenu" name="menuControl">
+    <property name="title">
+     <string>Cont&amp;rol</string>
+    </property>
+    <widget class="QMenu" name="menuSet_OC_profile">
+     <property name="title">
+      <string>&amp;Set OC profile</string>
+     </property>
+     <widget class="QMenu" name="menuS9Profiles">
+      <property name="title">
+       <string>&amp;S9</string>
+      </property>
+     </widget>
+     <widget class="QMenu" name="menuL3PProfiles">
+      <property name="title">
+       <string>&amp;L3+</string>
+      </property>
+     </widget>
+     <widget class="QMenu" name="menuT9PProfiles">
+      <property name="title">
+       <string>&amp;T9+</string>
+      </property>
+     </widget>
+     <addaction name="menuS9Profiles"/>
+     <addaction name="menuL3PProfiles"/>
+     <addaction name="menuT9PProfiles"/>
+    </widget>
+    <widget class="QMenu" name="menu_LED_blinking">
+     <property name="title">
+      <string>&amp;LED blinking</string>
+     </property>
+    </widget>
+    <addaction name="actionDevice_settings"/>
+    <addaction name="actionReset_to_default"/>
+    <addaction name="menuSet_OC_profile"/>
+    <addaction name="menu_LED_blinking"/>
+   </widget>
+   <addaction name="settings"/>
+   <addaction name="menuDevices"/>
+   <addaction name="menuControl"/>
+   <addaction name="menuView"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <action name="actionBasic_settings">
+   <property name="icon">
+    <iconset resource="project-721.qrc">
+     <normaloff>:/images/settings-128.png</normaloff>:/images/settings-128.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Basic settings</string>
+   </property>
+  </action>
+  <action name="actionNetwork_settings">
+   <property name="icon">
+    <iconset resource="project-721.qrc">
+     <normaloff>:/images/lan-128.png</normaloff>:/images/lan-128.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Network settings</string>
+   </property>
+  </action>
+  <action name="actionFind_devices">
+   <property name="icon">
+    <iconset resource="project-721.qrc">
+     <normaloff>:/images/find-128.png</normaloff>:/images/find-128.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Find devices</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
+   </property>
+  </action>
+  <action name="actionAdd_group">
+   <property name="text">
+    <string>Add &amp;group</string>
+   </property>
+   <property name="toolTip">
+    <string>Add group</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+G</string>
+   </property>
+  </action>
+  <action name="actionAdd_devices">
+   <property name="text">
+    <string>&amp;Add devices</string>
+   </property>
+   <property name="toolTip">
+    <string>Add devices</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
+   </property>
+  </action>
+  <action name="actionDelete_devices_completely">
+   <property name="text">
+    <string>D&amp;elete devices</string>
+   </property>
+   <property name="toolTip">
+    <string>Completely delete and forget devices</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Del</string>
+   </property>
+  </action>
+  <action name="actionToggle_fullscreen">
+   <property name="text">
+    <string>&amp;Toggle fullscreen</string>
+   </property>
+   <property name="shortcut">
+    <string>F11</string>
+   </property>
+  </action>
+  <action name="actionGroup_summary">
+   <property name="text">
+    <string>&amp;Group summary</string>
+   </property>
+  </action>
+  <action name="actionRemove_devices_from_group">
+   <property name="text">
+    <string>Rem&amp;ove devices</string>
+   </property>
+   <property name="shortcut">
+    <string>Del</string>
+   </property>
+  </action>
+  <action name="actionDevice_settings">
+   <property name="icon">
+    <iconset resource="project-721.qrc">
+     <normaloff>:/images/settings-128.png</normaloff>:/images/settings-128.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Device settings</string>
+   </property>
+  </action>
+  <action name="actionSupport_website">
+   <property name="text">
+    <string>Support &amp;on website</string>
+   </property>
+  </action>
+  <action name="actionReset_to_default">
+   <property name="icon">
+    <iconset resource="project-721.qrc">
+     <normaloff>:/images/device-128.png</normaloff>:/images/device-128.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Reset to default</string>
+   </property>
+  </action>
+  <action name="actionSleep_settings">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/images/timeManagement-128.png</normaloff>:/images/timeManagement-128.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Sleep settings</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>&amp;Quit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources>
+  <include location="project-721.qrc"/>
+ </resources>
+ <connections/>
+</ui>
