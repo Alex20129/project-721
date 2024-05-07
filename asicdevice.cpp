@@ -45,7 +45,7 @@ ASICDevice::ASICDevice(QObject *parent) : QObject(parent)
         _pBoardACN[board]=0;
     }
     connect(ThreadTimer, SIGNAL(timeout()), this, SLOT(on_socketTimeout()));
-    connect(_pDevSocket, SIGNAL(readyRead()), this, SLOT(readTcpData()));
+	connect(_pDevSocket, SIGNAL(readyRead()), this, SLOT(on_socketReadyRead()));
     connect(_pDevSocket, SIGNAL(connected()), this, SLOT(on_socketConnected()));
     connect(_pDevSocket, SIGNAL(disconnected()), this, SLOT(on_socketDisconnected()));
     connect(_pDevSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(on_socketError(QAbstractSocket::SocketError)));
@@ -70,6 +70,7 @@ ASICDevice::~ASICDevice()
 
 void ASICDevice::ExecCGIScriptViaGET(QString path, QUrlQuery query)
 {
+	gLogger->Log("ASICDevice::"+string(__FUNCTION__), LOG_DEBUG);
     QUrl ScriptURL;
     ScriptURL.setScheme("http");
     ScriptURL.setHost(this->Address.toString());
@@ -94,6 +95,7 @@ void ASICDevice::ExecCGIScriptViaGET(QString path, QUrlQuery query)
 
 void ASICDevice::UploadDataViaPOST(QString path, QByteArray *DataToSend)
 {
+	gLogger->Log("ASICDevice::"+string(__FUNCTION__), LOG_DEBUG);
     QUrl deviceURL;
     deviceURL.setScheme("http");
     deviceURL.setHost(this->Address.toString());
@@ -115,6 +117,7 @@ void ASICDevice::UploadDataViaPOST(QString path, QByteArray *DataToSend)
 
 void ASICDevice::onNetManagerFinished(QNetworkReply *reply)
 {
+	gLogger->Log("ASICDevice::"+string(__FUNCTION__), LOG_DEBUG);
     QByteArray ReceivedData;
     if(reply->error()==QNetworkReply::NoError)
     {
@@ -140,6 +143,7 @@ void ASICDevice::onNetManagerFinished(QNetworkReply *reply)
 
 void ASICDevice::onAuthenticationNeeded(QNetworkReply *reply, QAuthenticator *authenticator)
 {
+	gLogger->Log("ASICDevice::"+string(__FUNCTION__), LOG_DEBUG);
     if(reply->error()==QNetworkReply::NoError)
     {
 		//gLogger->Log("ASICDevice::onAuthenticationNeeded reply success", LOG_INFO);
@@ -155,7 +159,8 @@ void ASICDevice::onAuthenticationNeeded(QNetworkReply *reply, QAuthenticator *au
 
 void ASICDevice::SendCommand(QByteArray command)
 {
-	gLogger->Log("ASICDevice::SendCommand "+command.toStdString(), LOG_DEBUG);
+	gLogger->Log("ASICDevice::"+string(__FUNCTION__), LOG_DEBUG);
+	gLogger->Log(command.toStdString(), LOG_DEBUG);
     if(command.isEmpty())
     {
         return;
@@ -183,7 +188,8 @@ void ASICDevice::CommandLoop()
 
 void ASICDevice::on_socketConnected()
 {
-	gLogger->Log("ASICDevice::on_socketConnected "+Address.toString().toStdString(), LOG_DEBUG);
+	gLogger->Log("ASICDevice::"+string(__FUNCTION__), LOG_DEBUG);
+	gLogger->Log(Address.toString().toStdString(), LOG_DEBUG);
     emit(SocketConnected(this));
     if(_pPendingCommands->count())
     {
@@ -194,7 +200,8 @@ void ASICDevice::on_socketConnected()
 
 void ASICDevice::on_socketDisconnected()
 {
-	gLogger->Log("ASICDevice::on_socketDisconnected "+Address.toString().toStdString(), LOG_DEBUG);
+	gLogger->Log("ASICDevice::"+string(__FUNCTION__), LOG_DEBUG);
+	gLogger->Log(Address.toString().toStdString(), LOG_DEBUG);
     ThreadTimer->stop();
     if(_pIsBusy)
     {
@@ -210,7 +217,8 @@ void ASICDevice::on_socketDisconnected()
 
 void ASICDevice::on_socketTimeout()
 {
-	gLogger->Log("ASICDevice::on_socketTimeout "+Address.toString().toStdString(), LOG_DEBUG);
+	gLogger->Log("ASICDevice::"+string(__FUNCTION__), LOG_DEBUG);
+	gLogger->Log(Address.toString().toStdString(), LOG_DEBUG);
     ThreadTimer->stop();
     if(_pIsBusy)
     {
@@ -224,13 +232,14 @@ void ASICDevice::on_socketTimeout()
     }
     _pReceivedTCPData->clear();
     _pPendingCommands->clear();
-    _pState|=ASICDevice::AlarmSocketTimeout;
+	_pState|=ASICAlarmFlags::AlarmSocketTimeout;
     emit(Alarm(_pState));
 }
 
 void ASICDevice::on_socketError(QAbstractSocket::SocketError error)
 {
-	gLogger->Log("ASICDevice::on_socketError "+Address.toString().toStdString(), LOG_DEBUG);
+	gLogger->Log("ASICDevice::"+string(__FUNCTION__), LOG_DEBUG);
+	gLogger->Log(Address.toString().toStdString(), LOG_DEBUG);
 	gLogger->Log(_pDevSocket->errorString().toStdString()+
 				(" (SocketError code ")+
 				 to_string(error)+
@@ -249,26 +258,36 @@ void ASICDevice::on_socketError(QAbstractSocket::SocketError error)
     _pReceivedTCPData->clear();
     _pPendingCommands->clear();
     */
-    _pState|=ASICDevice::AlarmSocketError;
+	_pState|=ASICAlarmFlags::AlarmSocketError;
     emit(SocketError(this));
     emit(Alarm(_pState));
 }
 
-void ASICDevice::readTcpData()
+void ASICDevice::on_socketReadyRead()
 {
-	gLogger->Log("ASICDevice::readTcpData "+Address.toString().toStdString(), LOG_DEBUG);
+	gLogger->Log("ASICDevice::"+string(__FUNCTION__), LOG_DEBUG);
+	gLogger->Log(Address.toString().toStdString(), LOG_DEBUG);
+	*_pReceivedTCPData=_pDevSocket->readAll();
 	gLogger->Log(_pReceivedTCPData->toStdString(), LOG_DEBUG);
-    if(_pReceivedTCPData->at(_pReceivedTCPData->length()-1)==0 &&
-       _pReceivedTCPData->at(_pReceivedTCPData->length()-2)==124)
-    {
-        updateStats(_pReceivedTCPData);
-        _pReceivedTCPData->clear();
-        _pDevSocket->close();
-    }
+	if(_pReceivedTCPData->length()<7)
+	{
+		gLogger->Log("Not enought data has been read from the socket ("+to_string(_pReceivedTCPData->length())+" bytes", LOG_ERR);
+	}
+	else
+	{
+		if(_pReceivedTCPData->at(_pReceivedTCPData->length()-1)==0 &&
+		   _pReceivedTCPData->at(_pReceivedTCPData->length()-2)==124)
+		{
+			updateStats(_pReceivedTCPData);
+		}
+	}
+	_pReceivedTCPData->clear();
+	_pDevSocket->close();
 }
 
 void ASICDevice::updateStats(QByteArray *data)
 {
+	gLogger->Log("ASICDevice::"+string(__FUNCTION__), LOG_DEBUG);
     uint n, uval;
     double dval;
     char str[128], poolsubstr[512];

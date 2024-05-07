@@ -19,6 +19,15 @@ public:
     Pool();
 };
 
+enum ASICAlarmFlags
+{
+	NoAlarm				=0x0000,
+	AlarmThermalRunout	=0x0001,
+	AlarmHashrateDecline=0x0002,
+	AlarmSocketTimeout	=0x0004,
+	AlarmSocketError	=0x0008
+};
+
 class ASICDevice : public QObject
 {
     Q_OBJECT
@@ -31,14 +40,6 @@ signals:
 public:
     uint GroupID;
     static unsigned int ActiveThreadsNum;
-    enum AlarmFlags
-    {
-		NoAlarm				=0x0000,
-		AlarmThermalRunout	=0x0001,
-		AlarmHashrateDecline=0x0002,
-		AlarmSocketTimeout	=0x0004,
-		AlarmSocketError	=0x0008
-    };
     quint16 WebPort;
     quint16 APIPort;
     QString HostName;
@@ -94,7 +95,7 @@ private slots:
     void on_socketDisconnected();
     void on_socketTimeout();
     void on_socketError(QAbstractSocket::SocketError error);
-    void readTcpData();
+	void on_socketReadyRead();
     void onAuthenticationNeeded(QNetworkReply *reply, QAuthenticator *authenticator);
     void onNetManagerFinished(QNetworkReply *reply);
 };

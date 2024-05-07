@@ -1,8 +1,10 @@
 #include "asictablewidget.h"
+#include "logger.hpp"
 #include "main.hpp"
 
 ASICTableWidget::ASICTableWidget(QWidget *parent) : QTableWidget(parent)
 {
+	gLogger->Log("ASICTableWidget::"+string(__FUNCTION__), LOG_DEBUG);
     WebPort=0;
     APIPort=0;
     GroupID=0;
@@ -12,6 +14,7 @@ ASICTableWidget::ASICTableWidget(QWidget *parent) : QTableWidget(parent)
 
 void ASICTableWidget::addDevice(ASICDevice *deviceToAdd)
 {
+	gLogger->Log("ASICTableWidget::"+string(__FUNCTION__), LOG_DEBUG);
     for(int device=0; device<DeviceList->count(); device++)
     {
         if(deviceToAdd->Address==DeviceList->at(device)->Address)
@@ -30,12 +33,14 @@ void ASICTableWidget::addDevice(ASICDevice *deviceToAdd)
 
 void ASICTableWidget::removeDevice(ASICDevice *deviceToRemove)
 {
+	gLogger->Log("ASICTableWidget::"+string(__FUNCTION__), LOG_DEBUG);
     DeviceList->removeAll(deviceToRemove);
     this->setRowCount(DeviceList->count());
 }
 
 void ASICTableWidget::on_cellDoubleClicked(int row, int column)
 {
+	gLogger->Log("ASICTableWidget::"+string(__FUNCTION__), LOG_DEBUG);
     Q_UNUSED(row);
     if(column==0)
     {
