@@ -17,17 +17,17 @@ void ASICTableWidget::addDevice(ASICDevice *deviceToAdd)
 	gLogger->Log("ASICTableWidget::"+string(__FUNCTION__), LOG_DEBUG);
     for(int device=0; device<DeviceList->count(); device++)
     {
-        if(deviceToAdd->Address==DeviceList->at(device)->Address)
+		if(deviceToAdd->Address==DeviceList->at(device)->Address)
         {
             return;
         }
     }
-    deviceToAdd->UserName=this->UserName;
-    deviceToAdd->Password=this->Password;
-    deviceToAdd->APIPort=this->APIPort;
-    deviceToAdd->WebPort=this->WebPort;
-    deviceToAdd->GroupID=this->GroupID;
-    DeviceList->append(deviceToAdd);
+	deviceToAdd->UserName=this->UserName;
+	deviceToAdd->Password=this->Password;
+	deviceToAdd->APIPort=this->APIPort;
+	deviceToAdd->WebPort=this->WebPort;
+	deviceToAdd->GroupID=this->GroupID;
+	DeviceList->append(deviceToAdd);
     this->setRowCount(DeviceList->count());
 }
 

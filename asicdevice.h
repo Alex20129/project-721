@@ -11,21 +11,21 @@
 class Pool
 {
 public:
-    QUrl URL;
-    uint priority;
-    bool StratumActive;
-    QString User;
-    QString Status;
-    Pool();
+	QUrl URL;
+	uint priority;
+	bool StratumActive;
+	QString User;
+	QString Status;
+	Pool();
 };
 
 enum ASICAlarmFlags
 {
-	NoAlarm				=0x0000,
-	AlarmThermalRunout	=0x0001,
-	AlarmHashrateDecline=0x0002,
-	AlarmSocketTimeout	=0x0004,
-	AlarmSocketError	=0x0008
+	NoAlarm					=0x0000,
+	AlarmThermalRunout		=0x0001,
+	AlarmHashrateDecline	=0x0002,
+	AlarmSocketTimeout		=0x0004,
+	AlarmSocketError		=0x0008
 };
 
 class ASICDevice : public QObject
@@ -39,7 +39,7 @@ signals:
     void Alarm(uint alarmCode);
 public:
     uint GroupID;
-    static unsigned int ActiveThreadsNum;
+	static uint32_t ActiveThreadsNum;
     quint16 WebPort;
     quint16 APIPort;
     QString HostName;

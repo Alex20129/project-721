@@ -2,7 +2,7 @@
 #include "logger.hpp"
 #include "main.hpp"
 
-unsigned int ASICDevice::ActiveThreadsNum=0;
+uint32_t ASICDevice::ActiveThreadsNum=0;
 
 Pool::Pool()
 {
@@ -160,9 +160,10 @@ void ASICDevice::onAuthenticationNeeded(QNetworkReply *reply, QAuthenticator *au
 void ASICDevice::SendCommand(QByteArray command)
 {
 	gLogger->Log("ASICDevice::"+string(__FUNCTION__), LOG_DEBUG);
-	gLogger->Log(command.toStdString(), LOG_DEBUG);
+	gLogger->Log(Address.toString().toStdString()+" "+command.toStdString(), LOG_DEBUG);
     if(command.isEmpty())
     {
+		gLogger->Log("An empty command has been put into the command queue", LOG_NOTICE);
         return;
     }
     _pPendingCommands->append(command);

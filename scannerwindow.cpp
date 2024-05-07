@@ -99,7 +99,7 @@ void ScannerWindow::QuickAPIScan(QVector <ASICDevice *> *devicesToCheck)
         else
         {
 			devicesToCheck->at(host)->SendCommand(QByteArray("summary"));
-			devicesToCheck->at(host)->SendCommand(QByteArray("estats"));
+			devicesToCheck->at(host)->SendCommand(QByteArray("stats"));
         }
         host++;
         ui->progressBar->setValue(host);

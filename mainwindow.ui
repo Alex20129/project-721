@@ -14,7 +14,7 @@
    <string>title</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="project-721.qrc">
     <normaloff>:/images/project-721.png</normaloff>:/images/project-721.png</iconset>
   </property>
   <property name="iconSize">
@@ -246,15 +246,9 @@
      <addaction name="menuL3PProfiles"/>
      <addaction name="menuT9PProfiles"/>
     </widget>
-    <widget class="QMenu" name="menu_LED_blinking">
-     <property name="title">
-      <string>&amp;LED blinking</string>
-     </property>
-    </widget>
     <addaction name="actionDevice_settings"/>
     <addaction name="actionReset_to_default"/>
     <addaction name="menuSet_OC_profile"/>
-    <addaction name="menu_LED_blinking"/>
    </widget>
    <addaction name="settings"/>
    <addaction name="menuDevices"/>

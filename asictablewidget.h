@@ -24,7 +24,7 @@ class ASICTableWidget : public QTableWidget
     Q_OBJECT
 signals:
 public slots:
-    void addDevice(ASICDevice *deviceToAdd);
+	void addDevice(ASICDevice *deviceToAdd);
     void removeDevice(ASICDevice *deviceToRemove);
     void on_cellDoubleClicked(int row, int column);
 public:
