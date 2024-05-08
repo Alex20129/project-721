@@ -178,7 +178,6 @@ void ASICDevice::CommandLoop()
     }
     _pIsBusy=true;
     ASICDevice::ActiveThreadsNum++;
-	//gLogger->Log(QString("ASICDevice::ActiveThreadsNum ")+QString::number(ActiveThreadsNum));
     if(_pDevSocket->state()==QAbstractSocket::UnconnectedState)
     {
         ThreadTimer->setInterval(gAppConfig->ThreadLifeTime);
@@ -208,7 +207,6 @@ void ASICDevice::on_socketDisconnected()
     {
         _pIsBusy=false;
         ASICDevice::ActiveThreadsNum--;
-//		gLogger->Log("ASICDevice::ActiveThreadsNum "+to_string(ActiveThreadsNum), LOG_DEBUG);
     }
     if(_pPendingCommands->count())
     {

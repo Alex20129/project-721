@@ -27,7 +27,8 @@ public slots:
     void clearUpDeviceList(ASICDevice *device);
 private:
     Ui::ScannerWindow *ui;
-    bool _pIsBusy, _pStopScan;
+	QVector <ASICDevice *> *pHostsToScan;
+	bool pIsBusy, pStopScan;
 private slots:
     void on_scanIsDone();
     void on_scanIsRun();

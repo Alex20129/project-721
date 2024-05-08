@@ -5,8 +5,11 @@
 
 ScannerWindow::ScannerWindow(QWidget *parent) : QWidget(parent), ui(new Ui::ScannerWindow)
 {
-    _pIsBusy=false;
-    ui->setupUi(this);
+	gLogger->Log("ScannerWindow::"+string(__FUNCTION__), LOG_DEBUG);
+	pIsBusy=false;
+	pHostsToScan=new QVector <ASICDevice *>;
+
+	ui->setupUi(this);
 
     connect(this, SIGNAL(ScanIsDone()), this, SLOT(on_scanIsDone()));
     connect(this, SIGNAL(ScanIsRun()), this, SLOT(on_scanIsRun()));
@@ -23,11 +26,13 @@ ScannerWindow::ScannerWindow(QWidget *parent) : QWidget(parent), ui(new Ui::Scan
 
 ScannerWindow::~ScannerWindow()
 {
+	gLogger->Log("ScannerWindow::"+string(__FUNCTION__), LOG_DEBUG);
     delete ui;
 }
 
 void ScannerWindow::keyPressEvent(QKeyEvent *event)
 {
+	gLogger->Log("ScannerWindow::"+string(__FUNCTION__), LOG_DEBUG);
     switch(event->key())
     {
         case Qt::Key_Escape:
@@ -39,7 +44,7 @@ void ScannerWindow::keyPressEvent(QKeyEvent *event)
 
 void ScannerWindow::updateDeviceList(ASICDevice *device)
 {
-	gLogger->Log("ScannerWindow::updateDeviceList()", LOG_DEBUG);
+	gLogger->Log("ScannerWindow::"+string(__FUNCTION__), LOG_DEBUG);
 	gLogger->Log(device->Address.toString().toStdString(), LOG_DEBUG);
     disconnect(device, nullptr, nullptr, nullptr);
     mw->DefaultTabWidget->addDevice(device);
@@ -48,7 +53,7 @@ void ScannerWindow::updateDeviceList(ASICDevice *device)
 
 void ScannerWindow::clearUpDeviceList(ASICDevice *device)
 {
-	gLogger->Log("ScannerWindow::clearUpDeviceList()", LOG_DEBUG);
+	gLogger->Log("ScannerWindow::"+string(__FUNCTION__), LOG_DEBUG);
 	gLogger->Log(device->Address.toString().toStdString(), LOG_DEBUG);
     disconnect(device, nullptr, nullptr, nullptr);
     device->deleteLater();
@@ -56,25 +61,25 @@ void ScannerWindow::clearUpDeviceList(ASICDevice *device)
 
 void ScannerWindow::on_scanIsDone()
 {
-	gLogger->Log("ScannerWindow::on_scanIsDone()", LOG_DEBUG);
+	gLogger->Log("ScannerWindow::"+string(__FUNCTION__), LOG_DEBUG);
     ui->apiScanButton->setEnabled(1);
 }
 
 void ScannerWindow::on_scanIsRun()
 {
-	gLogger->Log("ScannerWindow::on_scanIsRun()", LOG_DEBUG);
+	gLogger->Log("ScannerWindow::"+string(__FUNCTION__), LOG_DEBUG);
     ui->apiScanButton->setEnabled(0);
 }
 
 void ScannerWindow::QuickAPIScan(QVector <ASICDevice *> *devicesToCheck)
 {
-	gLogger->Log("ScannerWindow::QuickAPIScan()", LOG_DEBUG);
-    if(_pIsBusy)
+	gLogger->Log("ScannerWindow::"+string(__FUNCTION__), LOG_DEBUG);
+	if(pIsBusy)
     {
         return;
     }
-    _pIsBusy=true;
-    _pStopScan=false;
+	pIsBusy=true;
+	pStopScan=false;
     emit(ScanIsRun());
 	if(devicesToCheck->isEmpty())
     {
@@ -91,7 +96,7 @@ void ScannerWindow::QuickAPIScan(QVector <ASICDevice *> *devicesToCheck)
         {
             QApplication::processEvents();
         }
-        if(_pStopScan)
+		if(pStopScan)
         {
 			disconnect(devicesToCheck->at(host), nullptr, nullptr, nullptr);
 			devicesToCheck->at(host)->deleteLater();
@@ -108,15 +113,15 @@ void ScannerWindow::QuickAPIScan(QVector <ASICDevice *> *devicesToCheck)
     {
         QApplication::processEvents();
     }
-    _pIsBusy=false;
+	pIsBusy=false;
     emit(ScanIsDone());
 }
 
 void ScannerWindow::on_apiScanButton_clicked()
 {
+	gLogger->Log("ScannerWindow::"+string(__FUNCTION__), LOG_DEBUG);
     ui->ipList->clear();
     QHostAddress AddrFrom(ui->ipFrom->text()), AddrTo(ui->ipTo->text());
-    QVector <ASICDevice *> Hosts;
     for(quint32 address=AddrFrom.toIPv4Address(); address<=AddrTo.toIPv4Address(); address++)
     {
         ASICDevice *newDevice=new ASICDevice;
@@ -124,20 +129,22 @@ void ScannerWindow::on_apiScanButton_clicked()
         newDevice->UserName=ui->username->text();
         newDevice->Password=ui->password->text();
         newDevice->APIPort=static_cast<quint16>(ui->apiPort->text().toUInt());
-        Hosts.append(newDevice);
+		pHostsToScan->append(newDevice);
         connect(newDevice, SIGNAL(SocketConnected(ASICDevice *)), this, SLOT(updateDeviceList(ASICDevice *)));
         connect(newDevice, SIGNAL(SocketError(ASICDevice *)), this, SLOT(clearUpDeviceList(ASICDevice *)));
     }
-	QuickAPIScan(&Hosts);
+	QuickAPIScan(pHostsToScan);
 }
 
 void ScannerWindow::on_stopScanButton_clicked()
 {
-    _pStopScan=true;
+	gLogger->Log("ScannerWindow::"+string(__FUNCTION__), LOG_DEBUG);
+	pStopScan=true;
 }
 
 void ScannerWindow::on_knownIPcomboBox_currentIndexChanged(int index)
 {
+	gLogger->Log("ScannerWindow::"+string(__FUNCTION__), LOG_DEBUG);
     Q_UNUSED(index)
     if(4!=ui->knownIPcomboBox->currentText().split(".").count())
     {
