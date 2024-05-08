@@ -1,5 +1,6 @@
 #include "basicsettingswindow.h"
 #include "ui_basicsettingswindow.h"
+#include "configurationholder.h"
 #include "logger.hpp"
 #include "main.hpp"
 

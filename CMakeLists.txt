@@ -32,7 +32,7 @@ ADD_EXECUTABLE(${PROJECT_NAME}
         configurationholder.h
         devicesettingswindow.h
 		main.hpp
-        mainwindow.h
+        mainwindow.hpp
         networksettingswindow.h
         scannerwindow.h
         sleepsettingswindow.h

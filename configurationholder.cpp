@@ -1,6 +1,8 @@
 #include "configurationholder.h"
 #include "main.hpp"
 
+ConfigurationHolder *gAppConfig;
+
 ConfigurationHolder::ConfigurationHolder()
 {
     ThreadLifeTime=DEFAULT_THREAD_LIFETIME;
@@ -12,7 +14,6 @@ ConfigurationHolder::ConfigurationHolder()
     AlarmWhenTemperatureAbove=DEFAULT_ALARM_TEMP_ABOVE;
     AlarmWhenTemperatureBelow=DEFAULT_ALARM_TEMP_BELOW;
     AlarmOnHWErrors=DEFAULT_ALARM_ON_HW_ERRORS;
-    this->MakeEncryptionCode();
 }
 
 int ConfigurationHolder::Save()
@@ -91,46 +92,4 @@ int ConfigurationHolder::Load(QString pathToFile)
     ActiveThreadsMaxNum=static_cast<unsigned int>(JSONData.value("ThreadsMaxNum").toInt(DEFAULT_THREADS_MAX_NUM));
     UpdateInterval=JSONData.value("UpdateInterval").toInt(DEFAULT_UPDATE_INTERVAL);
     return(0);
-}
-
-void ConfigurationHolder::MakeEncryptionCode()
-{
-    QCryptographicHash newHash(QCryptographicHash::Sha256);
-    SecretCode.clear();
-    SecretCode+=QSysInfo::currentCpuArchitecture()+
-                QSysInfo::kernelType()+
-                QSysInfo::kernelVersion()+
-                QSysInfo::productType()+
-                QSysInfo::productVersion()+
-                QSysInfo::machineHostName();
-    for(uint i=0; i<QNetworkInterface::allInterfaces().size(); i++)
-    {
-        SecretCode+=QNetworkInterface::allInterfaces().at(i).hardwareAddress();
-    }
-    newHash.addData(SecretCode);
-    SecretCode=newHash.result();
-}
-
-void ConfigurationHolder::EncryptData(QByteArray *data)
-{
-    if(!SecretCode.length())
-    {
-        return;
-    }
-    if(!data->length())
-    {
-        return;
-    }
-    QByteArray key(SecretCode);
-    for(int i=0, k=0; i<data->length(); i++, k++)
-    {
-        if(k==key.length())
-        {
-            for(k--; k>=0; k--)
-            {
-                key.data()[k]=(key.data()[k]>>1)+(key.data()[k]<<7);
-            }
-        }
-        data->data()[i]=data->data()[i]^key.data()[k];
-    }
 }

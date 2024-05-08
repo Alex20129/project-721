@@ -7,7 +7,6 @@
 #include <QTime>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QCryptographicHash>
 
 #define DEFAULT_ALARM_TEMP_ABOVE   85
 #define DEFAULT_ALARM_TEMP_BELOW   10
@@ -38,11 +37,10 @@ public:
     int Save(QString pathToFile);
     int Load();
     int Load(QString pathToFile);
-    void MakeEncryptionCode();
-    void EncryptData(QByteArray *data);
 private:
-    QString LastUsedFile;
-    QByteArray SecretCode;
+	QString LastUsedFile;
 };
+
+extern ConfigurationHolder *gAppConfig;
 
 #endif // CONFIGURATIONHOLDER_H

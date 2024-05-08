@@ -4,9 +4,11 @@
 #include <QWidget>
 #include <QJsonObject>
 #include <QJsonDocument>
+#include <QKeyEvent>
 
-namespace Ui {
-class DeviceSettingsWindow;
+namespace Ui
+{
+	class DeviceSettingsWindow;
 }
 
 class DeviceSettingsWindow : public QWidget

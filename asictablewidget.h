@@ -1,8 +1,8 @@
 #ifndef ASICTABLEWIDGET_H
 #define ASICTABLEWIDGET_H
 
-#include <QObject>
 #include <QTableWidget>
+#include <QDesktopServices>
 #include "asicdevice.h"
 
 class QTableWidgetIPItem : public QTableWidgetItem

@@ -1,13 +1,3 @@
-#include "mainwindow.h"
-#include "basicsettingswindow.h"
-#include "networksettingswindow.h"
-#include "devicesettingswindow.h"
-#include "scannerwindow.h"
-#include "addnewdevicedialog.h"
-#include "addnewgroupdialog.h"
-#include "sleepsettingswindow.h"
-#include "configurationholder.h"
-
 #define PROGRAM_NAME            "ASIC Monitor"
 #define PROGRAM_SHORT_NAME      "asicmon"
 #define PROGRAM_VERSION         "0.7.7"
@@ -29,14 +19,3 @@
 #elif defined(Q_OS_MACOS)
     #define API_HEADER_USER_AGENT PROGRAM_SHORT_NAME "/" PROGRAM_VERSION " (Macintosh; MacOS; x86_64)"
 #endif
-
-extern ConfigurationHolder *gAppConfig;
-
-extern BasicSettingsWindow *bsw;
-extern NetworkSettingsWindow *nsw;
-extern DeviceSettingsWindow *devsw;
-extern ScannerWindow *sw;
-extern AddNewDeviceDialog *andd;
-extern AddNewGroupDialog *angd;
-extern SleepSettingsWindow *ssw;
-extern MainWindow *mw;

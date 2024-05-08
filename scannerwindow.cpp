@@ -1,6 +1,7 @@
 #include "scannerwindow.h"
-#include "logger.hpp"
 #include "ui_scannerwindow.h"
+#include "configurationholder.h"
+#include "logger.hpp"
 #include "main.hpp"
 
 ScannerWindow::ScannerWindow(QWidget *parent) : QWidget(parent), ui(new Ui::ScannerWindow)
@@ -13,7 +14,7 @@ ScannerWindow::ScannerWindow(QWidget *parent) : QWidget(parent), ui(new Ui::Scan
 
 	connect(this, SIGNAL(ScanIsDone()), this, SLOT(on_scanIsDone()));
 	connect(this, SIGNAL(ScanIsRun()), this, SLOT(on_scanIsRun()));
-	connect(this, SIGNAL(ScanProgress(int)), this->ui->progressBar, SLOT(setValue(int)));
+	connect(this, SIGNAL(ScanProgress(int)), ui->progressBar, SLOT(setValue(int)));
 
 	for(int i=0; i<QNetworkInterface::allAddresses().count(); i++)
 	{
@@ -48,7 +49,7 @@ void ScannerWindow::updateDeviceList(ASICDevice *device)
 	gLogger->Log("ScannerWindow::"+string(__FUNCTION__), LOG_DEBUG);
 	gLogger->Log(device->Address.toString().toStdString(), LOG_DEBUG);
 	disconnect(device, nullptr, nullptr, nullptr);
-	mw->DefaultTabWidget->addDevice(device);
+	emit(DeviceFound(device));
 	ui->ipList->addItem(device->Address.toString());
 }
 
@@ -81,7 +82,6 @@ void ScannerWindow::on_scanIsRun()
 	pIsBusy=true;
 	ui->apiScanButton->setEnabled(0);
 	QuickAPIScan(pHostsToScan);
-	emit(ScanIsDone());
 }
 
 void ScannerWindow::QuickAPIScan(QVector <ASICDevice *> *devicesToCheck)
@@ -109,11 +109,14 @@ void ScannerWindow::QuickAPIScan(QVector <ASICDevice *> *devicesToCheck)
 		}
 		else
 		{
+			connect(device, SIGNAL(SocketConnected(ASICDevice *)), this, SLOT(updateDeviceList(ASICDevice *)));
+			connect(device, SIGNAL(SocketError(ASICDevice *)), this, SLOT(clearUpDeviceList(ASICDevice *)));
 			device->SendCommand(QByteArray("summary"));
 			device->SendCommand(QByteArray("stats"));
 		}
 		emit(ScanProgress(++progress));
 	}
+	emit(ScanIsDone());
 }
 
 void ScannerWindow::on_apiScanButton_clicked()
@@ -130,8 +133,6 @@ void ScannerWindow::on_apiScanButton_clicked()
 		newDevice->Password=ui->password->text();
 		newDevice->APIPort=static_cast<quint16>(ui->apiPort->text().toUInt());
 		pHostsToScan->append(newDevice);
-		connect(newDevice, SIGNAL(SocketConnected(ASICDevice *)), this, SLOT(updateDeviceList(ASICDevice *)));
-		connect(newDevice, SIGNAL(SocketError(ASICDevice *)), this, SLOT(clearUpDeviceList(ASICDevice *)));
 	}
 	ui->progressBar->setMaximum(pHostsToScan->size());
 	emit(ScanIsRun());

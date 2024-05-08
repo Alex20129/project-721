@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QtNetwork>
 #include <QListWidget>
+#include <QKeyEvent>
 #include "asicdevice.h"
 
 namespace Ui
@@ -18,12 +19,13 @@ signals:
 	void ScanIsRun();
 	void ScanProgress(int progress);
 	void ScanIsDone();
+	void DeviceFound(ASICDevice *device);
 public:
 	explicit ScannerWindow(QWidget *parent=nullptr);
 	~ScannerWindow();
 	void keyPressEvent(QKeyEvent *event);
-public slots:
 	void QuickAPIScan(QVector<ASICDevice *> *devicesToCheck);
+public slots:
 	void updateDeviceList(ASICDevice *device);
 	void clearUpDeviceList(ASICDevice *device);
 private:

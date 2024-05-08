@@ -1,5 +1,6 @@
 #include "addnewdevicedialog.h"
 #include "ui_addnewdevicedialog.h"
+#include "asicdevice.h"
 #include "main.hpp"
 
 AddNewDeviceDialog::AddNewDeviceDialog(QWidget *parent) : QDialog(parent), ui(new Ui::AddNewDeviceDialog)

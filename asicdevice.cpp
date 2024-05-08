@@ -1,4 +1,5 @@
 #include "asicdevice.h"
+#include "configurationholder.h"
 #include "logger.hpp"
 #include "main.hpp"
 

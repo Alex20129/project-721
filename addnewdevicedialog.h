@@ -2,7 +2,7 @@
 #define ADDNEWDEVICEDIALOG_H
 
 #include <QDialog>
-#include "asicdevice.h"
+
 
 namespace Ui {
 class AddNewDeviceDialog;

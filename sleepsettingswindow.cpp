@@ -1,5 +1,7 @@
 #include "sleepsettingswindow.h"
 #include "ui_sleepsettingswindow.h"
+#include "configurationholder.h"
+#include "mainwindow.hpp"
 #include "main.hpp"
 
 SleepSettingsWindow::SleepSettingsWindow(QWidget *parent) :

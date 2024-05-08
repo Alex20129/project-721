@@ -1,5 +1,6 @@
 #include "devicesettingswindow.h"
 #include "ui_devicesettingswindow.h"
+#include "configurationholder.h"
 #include "main.hpp"
 
 DeviceSettingsWindow::DeviceSettingsWindow(QWidget *parent) :

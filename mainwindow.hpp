@@ -1,5 +1,5 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef MAINWINDOW_HPP
+#define MAINWINDOW_HPP
 
 #include <QMainWindow>
 #include <QtNetwork>
@@ -22,9 +22,17 @@ signals:
     void FirmwareUploadProgess(int progress);
     void timeToSleep();
     void timeToWakeUp();
+	void NeedToShowBasicSettingsWindow();
+	void NeedToShowNetworkSettingsWindow();
+	void NeedToShowDeviceSettingsWindow();
+	void NeedToShowScannerWindow();
+	void NeedToShowSleepSettingsWindow();
+	void NeedToShowAddNewDeviceDialog();
+	void NeedToShowAddNewGroupDialog();
 public slots:
     void updateDeviceView();
     void on_customContextMenuRequested(QPoint position);
+	void addDevice(ASICDevice *device);
     void addDevicesToGroup();
     void addNewDevices(QString addressFrom, QString addressTo);
     void addNewGroup(QString title, QString description, QString username, QString password, quint16 apiport, quint16 webport);
@@ -37,7 +45,7 @@ public:
     bool IsAwake;
     QTimer *RefreshTimer, *SleepWakeTimer;
     QStringList *ColumnTitles;
-    ASICTableWidget *DefaultTabWidget;
+
 private slots:
     void setOCProfile();
     void rescanDevices();
@@ -52,12 +60,25 @@ private slots:
     void on_actionToggle_fullscreen_triggered();
     void on_actionGroup_summary_triggered();
     void on_actionRemove_devices_from_group_triggered();
-    void on_tabWidget_tabCloseRequested(int index);
-    void on_tabWidget_tabBarDoubleClicked(int index);
     void on_actionSupport_website_triggered();
     void on_actionReset_to_default_triggered();
+	void on_tabWidget_tabCloseRequested(int index);
+	void on_tabWidget_tabBarDoubleClicked(int index);
+
+	void on_actionBasic_settings_triggered();
+	void on_actionNetwork_settings_triggered();
+	void on_actionDevice_settings_triggered();
+	void on_actionFind_devices_triggered();
+	void on_actionSleep_settings_triggered();
+	void on_actionAdd_devices_triggered();
+	void on_actionAdd_group_triggered();
+
+	void on_deviceSettingsButton_clicked();
+
+	void on_searchButton_clicked();
 
 private:
+	ASICTableWidget *DefaultTabWidget;
 	QVector <ASICDevice *> *DeviceList;
     int loadTabs();
     void saveTabs();
@@ -68,4 +89,6 @@ private:
     Ui::MainWindow *ui;
 };
 
-#endif // MAINWINDOW_H
+extern MainWindow *mw;
+
+#endif // MAINWINDOW_HPP

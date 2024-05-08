@@ -1,5 +1,6 @@
 #include "networksettingswindow.h"
 #include "ui_networksettingswindow.h"
+#include "configurationholder.h"
 #include "logger.hpp"
 #include "main.hpp"
 
