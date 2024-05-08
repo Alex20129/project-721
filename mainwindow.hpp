@@ -80,7 +80,6 @@ private:
 	QVector <ASICDevice *> *DeviceList;
     int loadTabs();
     void saveTabs();
-    void loadProfiles();
     uint ActiveUploadingThreads;
     QByteArray *firmwareData;
     uint GroupsCount;

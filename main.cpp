@@ -44,8 +44,6 @@ int main(int argc, char *argv[])
     angd=new AddNewGroupDialog;
 	MainWin=new MainWindow;
 
-	QApplication::connect(MainWin, &MainWindow::NeedToRescanDevices, ScanWin, &ScannerWindow::ScanDevices);
-
 	QApplication::connect(MainWin, &MainWindow::NeedToShowBasicSettingsWindow, BasicSetWin, &BasicSettingsWindow::show);
 	QApplication::connect(MainWin, &MainWindow::NeedToShowNetworkSettingsWindow, NetSetWin, &NetworkSettingsWindow::show);
 	QApplication::connect(MainWin, &MainWindow::NeedToShowDeviceSettingsWindow, DevSetWin, &DeviceSettingsWindow::show);
@@ -53,13 +51,14 @@ int main(int argc, char *argv[])
 	QApplication::connect(MainWin, &MainWindow::NeedToShowSleepSettingsWindow, SleepSetWin, &SleepSettingsWindow::show);
 	QApplication::connect(MainWin, &MainWindow::NeedToShowAddNewDeviceDialog, andd, &AddNewDeviceDialog::show);
 	QApplication::connect(MainWin, &MainWindow::NeedToShowAddNewGroupDialog, angd, &AddNewGroupDialog::show);
+	QApplication::connect(MainWin, &MainWindow::NeedToRescanDevices, ScanWin, &ScannerWindow::ScanDevices);
 
 	QApplication::connect(ScanWin, &ScannerWindow::ScanIsDone, MainWin, &MainWindow::updateDeviceView);
+	QApplication::connect(ScanWin, &ScannerWindow::DeviceFound, MainWin, &MainWindow::addDevice);
+
 	QApplication::connect(DevSetWin, &DeviceSettingsWindow::deviceSettingsObtained, MainWin, &MainWindow::uploadSettings);
 	QApplication::connect(andd, &AddNewDeviceDialog::deviceDataObtained, MainWin, &MainWindow::addNewDevices);
 	QApplication::connect(angd, &AddNewGroupDialog::groupDataObtained, MainWin, &MainWindow::addNewGroup);
-
-	QApplication::connect(ScanWin, &ScannerWindow::DeviceFound, MainWin, &MainWindow::addDevice);
 
 	gLogger->Log("Start now", LOG_NOTICE);
 	MainWin->show();
