@@ -4,7 +4,7 @@
 #include "logger.hpp"
 #include "main.hpp"
 
-MainWindow *mw;
+MainWindow *MainWin;
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -890,13 +890,13 @@ void MainWindow::on_actionReset_to_default_triggered()
 void MainWindow::on_actionToggle_fullscreen_triggered()
 {
 	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
-	if(mw->isFullScreen())
+	if(MainWin->isFullScreen())
 	{
-		mw->showNormal();
+		MainWin->showNormal();
 	}
 	else
 	{
-		mw->showFullScreen();
+		MainWin->showFullScreen();
 	}
 }
 

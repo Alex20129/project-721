@@ -89,6 +89,6 @@ private:
     Ui::MainWindow *ui;
 };
 
-extern MainWindow *mw;
+extern MainWindow *MainWin;
 
 #endif // MAINWINDOW_HPP

@@ -35,11 +35,11 @@ void SleepSettingsWindow::on_applyButton_clicked()
     gAppConfig->TimeToWakeUp=ui->timeWake->dateTime().time();
     if(gAppConfig->TimeToSleep==gAppConfig->TimeToWakeUp)
     {
-        mw->SleepWakeTimer->stop();
+		MainWin->SleepWakeTimer->stop();
     }
     else
     {
-        mw->SleepWakeTimer->start();
+		MainWin->SleepWakeTimer->start();
     }
     this->hide();
 }
