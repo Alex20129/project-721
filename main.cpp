@@ -52,10 +52,10 @@ int main(int argc, char *argv[])
 	QApplication::connect(MainWin, &MainWindow::NeedToShowAddNewDeviceDialog, andd, &AddNewDeviceDialog::show);
 	QApplication::connect(MainWin, &MainWindow::NeedToShowAddNewGroupDialog, angd, &AddNewGroupDialog::show);
 
-	QApplication::connect(ScanWin, SIGNAL(ScanIsDone()), MainWin, SLOT(updateDeviceView()));
-	QApplication::connect(angd, SIGNAL(groupDataObtained(QString, QString, QString, QString, quint16, quint16)), MainWin, SLOT(addNewGroup(QString, QString, QString, QString, quint16, quint16)));
-	QApplication::connect(andd, SIGNAL(deviceDataObtained(QString, QString)), MainWin, SLOT(addNewDevices(QString, QString)));
-	QApplication::connect(DevSetWin, SIGNAL(deviceSettingsObtained(QStringList)), MainWin, SLOT(uploadSettings(QStringList)));
+	QApplication::connect(ScanWin, &ScannerWindow::ScanIsDone, MainWin, &MainWindow::updateDeviceView);
+	QApplication::connect(DevSetWin, &DeviceSettingsWindow::deviceSettingsObtained, MainWin, &MainWindow::uploadSettings);
+	QApplication::connect(andd, &AddNewDeviceDialog::deviceDataObtained, MainWin, &MainWindow::addNewDevices);
+	QApplication::connect(angd, &AddNewGroupDialog::groupDataObtained, MainWin, &MainWindow::addNewGroup);
 
 	QApplication::connect(ScanWin, &ScannerWindow::DeviceFound, MainWin, &MainWindow::addDevice);
 
