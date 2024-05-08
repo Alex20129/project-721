@@ -1,6 +1,6 @@
 #define PROGRAM_NAME            "ASIC Monitor"
 #define PROGRAM_SHORT_NAME      "asicmon"
-#define PROGRAM_VERSION         "0.7.7"
+#define PROGRAM_VERSION         "0.7.8"
 #define PROGRAM_DESCRIPTION     "ASIC device monitoring and maintenance tool"
 
 #define DEVICE_BOARDS_NUM       16
