@@ -981,7 +981,8 @@ void MainWindow::uploadSettings(QStringList settings)
 		return;
 	}
 	int setting;
-	for(int host=0; host<HostsToSetup.count(); host++)
+	QByteArray setting_utf8;
+	for(int host=0; host<HostsToSetup.size(); host++)
 	{
 		PickedDevice=nullptr;
 		DataToSend.clear();
@@ -1003,7 +1004,7 @@ void MainWindow::uploadSettings(QStringList settings)
 			continue;
 		}
 
-		for(setting=0; setting<settings.count(); setting++)
+		for(setting=0; setting<settings.size(); setting++)
 		{
 			if(gAppConfig->AddressBasedPostfixToWorkerName)
 			{
@@ -1011,68 +1012,69 @@ void MainWindow::uploadSettings(QStringList settings)
 				{
 					if(2==settings.at(setting).split('=', QString::SkipEmptyParts).count())
 					{
-						DataToSend.append(QString("_ant_pool1user")+
-										  QString("=")+
-										  settings.at(setting).split('=').last()+
-										  QString(".")+
-										  HostsToSetup.at(host).split('.').at(2)+
-										  QString("x")+
-										  HostsToSetup.at(host).split('.').at(3)+
-										  QString(" "));
+						setting_utf8=(QString("_ant_pool1user")+
+									  QString("=")+
+									  settings.at(setting).split('=').last()+
+									  QString(".")+
+									  HostsToSetup.at(host).split('.').at(2)+
+									  QString("x")+
+									  HostsToSetup.at(host).split('.').at(3)+
+									  QString(" ")).toUtf8();
 					}
 					else
 					{
-						DataToSend.append(QString("_ant_pool1user")+
-										  QString("= "));
+						setting_utf8=(QString("_ant_pool1user")+
+									  QString("= ")).toUtf8();
 					}
 				}
 				else if(settings.at(setting).split('=').first()==QString("pool2user"))
 				{
 					if(2==settings.at(setting).split('=', QString::SkipEmptyParts).count())
 					{
-						DataToSend.append(QString("_ant_pool2user")+
-										  QString("=")+
-										  settings.at(setting).split('=').last()+
-										  QString(".")+
-										  HostsToSetup.at(host).split('.').at(2)+
-										  QString("x")+
-										  HostsToSetup.at(host).split('.').at(3)+
-										  QString(" "));
+						setting_utf8=(QString("_ant_pool2user")+
+									  QString("=")+
+									  settings.at(setting).split('=').last()+
+									  QString(".")+
+									  HostsToSetup.at(host).split('.').at(2)+
+									  QString("x")+
+									  HostsToSetup.at(host).split('.').at(3)+
+									  QString(" ")).toUtf8();
 					}
 					else
 					{
-						DataToSend.append(QString("_ant_pool2user")+
-										  QString("= "));
+						setting_utf8=(QString("_ant_pool2user")+
+									  QString("= ")).toUtf8();
 					}
 				}
 				else if(settings.at(setting).split('=').first()==QString("pool3user"))
 				{
 					if(2==settings.at(setting).split('=', QString::SkipEmptyParts).count())
 					{
-						DataToSend.append(QString("_ant_pool3user")+
-										  QString("=")+
-										  settings.at(setting).split('=').last()+
-										  QString(".")+
-										  HostsToSetup.at(host).split('.').at(2)+
-										  QString("x")+
-										  HostsToSetup.at(host).split('.').at(3)+
-										  QString(" "));
+						setting_utf8=(QString("_ant_pool3user")+
+									  QString("=")+
+									  settings.at(setting).split('=').last()+
+									  QString(".")+
+									  HostsToSetup.at(host).split('.').at(2)+
+									  QString("x")+
+									  HostsToSetup.at(host).split('.').at(3)+
+									  QString(" ")).toUtf8();
 					}
 					else
 					{
-						DataToSend.append(QString("_ant_pool3user")+
-										  QString("= "));
+						setting_utf8=(QString("_ant_pool3user")+
+									  QString("= ")).toUtf8();
 					}
 				}
 				else
 				{
-					DataToSend.append(QString("_ant_")+settings.at(setting)+QString(" "));
+					setting_utf8=(QString("_ant_")+settings.at(setting)+QString(" ")).toUtf8();
 				}
 			}
 			else
 			{
-				DataToSend.append(QString("_ant_")+settings.at(setting)+QString(" "));
+				setting_utf8=(QString("_ant_")+settings.at(setting)+QString(" ")).toUtf8();
 			}
+			DataToSend+=setting_utf8;
 		}
 
 		gLogger->Log(PickedDevice->Address.toString().toStdString()+" will be configured now", LOG_INFO);
