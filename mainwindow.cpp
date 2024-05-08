@@ -1010,60 +1010,42 @@ void MainWindow::uploadSettings(QStringList settings)
 			{
 				if(settings.at(setting).split('=').first()==QString("pool1user"))
 				{
+					setting_utf8=QString("_ant_pool1user=").toUtf8();
 					if(2==settings.at(setting).split('=', QString::SkipEmptyParts).count())
 					{
-						setting_utf8=(QString("_ant_pool1user")+
-									  QString("=")+
-									  settings.at(setting).split('=').last()+
+						setting_utf8+=(settings.at(setting).split('=').last()+
 									  QString(".")+
 									  HostsToSetup.at(host).split('.').at(2)+
 									  QString("x")+
-									  HostsToSetup.at(host).split('.').at(3)+
-									  QString(" ")).toUtf8();
+									  HostsToSetup.at(host).split('.').at(3)).toUtf8();
 					}
-					else
-					{
-						setting_utf8=(QString("_ant_pool1user")+
-									  QString("= ")).toUtf8();
-					}
+					setting_utf8+=QString(" ").toUtf8();
 				}
 				else if(settings.at(setting).split('=').first()==QString("pool2user"))
 				{
+					setting_utf8=QString("_ant_pool2user=").toUtf8();
 					if(2==settings.at(setting).split('=', QString::SkipEmptyParts).count())
 					{
-						setting_utf8=(QString("_ant_pool2user")+
-									  QString("=")+
-									  settings.at(setting).split('=').last()+
+						setting_utf8+=(settings.at(setting).split('=').last()+
 									  QString(".")+
 									  HostsToSetup.at(host).split('.').at(2)+
 									  QString("x")+
-									  HostsToSetup.at(host).split('.').at(3)+
-									  QString(" ")).toUtf8();
+									  HostsToSetup.at(host).split('.').at(3)).toUtf8();
 					}
-					else
-					{
-						setting_utf8=(QString("_ant_pool2user")+
-									  QString("= ")).toUtf8();
-					}
+					setting_utf8+=QString(" ").toUtf8();
 				}
 				else if(settings.at(setting).split('=').first()==QString("pool3user"))
 				{
+					setting_utf8=QString("_ant_pool3user=").toUtf8();
 					if(2==settings.at(setting).split('=', QString::SkipEmptyParts).count())
 					{
-						setting_utf8=(QString("_ant_pool3user")+
-									  QString("=")+
-									  settings.at(setting).split('=').last()+
+						setting_utf8+=(settings.at(setting).split('=').last()+
 									  QString(".")+
 									  HostsToSetup.at(host).split('.').at(2)+
 									  QString("x")+
-									  HostsToSetup.at(host).split('.').at(3)+
-									  QString(" ")).toUtf8();
+									  HostsToSetup.at(host).split('.').at(3)).toUtf8();
 					}
-					else
-					{
-						setting_utf8=(QString("_ant_pool3user")+
-									  QString("= ")).toUtf8();
-					}
+					setting_utf8+=QString(" ").toUtf8();
 				}
 				else
 				{
