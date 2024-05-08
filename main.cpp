@@ -44,6 +44,8 @@ int main(int argc, char *argv[])
     angd=new AddNewGroupDialog;
 	MainWin=new MainWindow;
 
+	QApplication::connect(MainWin, &MainWindow::NeedToRescanDevices, ScanWin, &ScannerWindow::ScanDevices);
+
 	QApplication::connect(MainWin, &MainWindow::NeedToShowBasicSettingsWindow, BasicSetWin, &BasicSettingsWindow::show);
 	QApplication::connect(MainWin, &MainWindow::NeedToShowNetworkSettingsWindow, NetSetWin, &NetworkSettingsWindow::show);
 	QApplication::connect(MainWin, &MainWindow::NeedToShowDeviceSettingsWindow, DevSetWin, &DeviceSettingsWindow::show);

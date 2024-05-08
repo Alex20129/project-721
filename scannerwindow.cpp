@@ -64,39 +64,34 @@ void ScannerWindow::clearUpDeviceList(ASICDevice *device)
 void ScannerWindow::on_scanIsDone()
 {
 	gLogger->Log("ScannerWindow::"+string(__FUNCTION__), LOG_DEBUG);
-	while(ASICDevice::ActiveThreadsNum)
-	{
-		QApplication::processEvents();
-	}
-	pIsBusy=false;
 	ui->apiScanButton->setEnabled(1);
 }
 
 void ScannerWindow::on_scanIsRun()
 {
 	gLogger->Log("ScannerWindow::"+string(__FUNCTION__), LOG_DEBUG);
+	ui->apiScanButton->setEnabled(0);
+}
+
+void ScannerWindow::ScanDevices(QVector <ASICDevice *> *devices)
+{
+	gLogger->Log("ScannerWindow::"+string(__FUNCTION__), LOG_DEBUG);
+	int progress=0;
 	if(pIsBusy)
 	{
 		return;
 	}
 	pIsBusy=true;
-	ui->apiScanButton->setEnabled(0);
-	QuickAPIScan(pHostsToScan);
-}
-
-void ScannerWindow::QuickAPIScan(QVector <ASICDevice *> *devicesToCheck)
-{
-	gLogger->Log("ScannerWindow::"+string(__FUNCTION__), LOG_DEBUG);
-	int progress=0;
 	pStopScan=false;
-	if(devicesToCheck->isEmpty())
+	emit(ScanIsRun());
+	if(devices->isEmpty())
 	{
 		gLogger->Log("Host list is empty =/", LOG_NOTICE);
 		emit(ScanIsDone());
 		return;
 	}
 	emit(ScanProgress(progress));
-	for(ASICDevice *device : *devicesToCheck)
+	for(ASICDevice *device : *devices)
 	{
 		while(ASICDevice::ActiveThreadsNum>gAppConfig->ActiveThreadsMaxNum)
 		{
@@ -109,13 +104,16 @@ void ScannerWindow::QuickAPIScan(QVector <ASICDevice *> *devicesToCheck)
 		}
 		else
 		{
-			connect(device, SIGNAL(SocketConnected(ASICDevice *)), this, SLOT(updateDeviceList(ASICDevice *)));
-			connect(device, SIGNAL(SocketError(ASICDevice *)), this, SLOT(clearUpDeviceList(ASICDevice *)));
 			device->SendCommand(QByteArray("summary"));
 			device->SendCommand(QByteArray("stats"));
 		}
 		emit(ScanProgress(++progress));
 	}
+	while(ASICDevice::ActiveThreadsNum)
+	{
+		QApplication::processEvents();
+	}
+	pIsBusy=false;
 	emit(ScanIsDone());
 }
 
@@ -132,10 +130,12 @@ void ScannerWindow::on_apiScanButton_clicked()
 		newDevice->UserName=ui->username->text();
 		newDevice->Password=ui->password->text();
 		newDevice->APIPort=static_cast<quint16>(ui->apiPort->text().toUInt());
+		connect(newDevice, &ASICDevice::SocketConnected, this, &ScannerWindow::updateDeviceList);
+		connect(newDevice, &ASICDevice::SocketError, this, &ScannerWindow::clearUpDeviceList);
 		pHostsToScan->append(newDevice);
 	}
 	ui->progressBar->setMaximum(pHostsToScan->size());
-	emit(ScanIsRun());
+	ScanDevices(pHostsToScan);
 }
 
 void ScannerWindow::on_stopScanButton_clicked()

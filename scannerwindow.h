@@ -24,10 +24,10 @@ public:
 	explicit ScannerWindow(QWidget *parent=nullptr);
 	~ScannerWindow();
 	void keyPressEvent(QKeyEvent *event);
-	void QuickAPIScan(QVector<ASICDevice *> *devicesToCheck);
 public slots:
 	void updateDeviceList(ASICDevice *device);
 	void clearUpDeviceList(ASICDevice *device);
+	void ScanDevices(QVector<ASICDevice *> *devices);
 private:
 	Ui::ScannerWindow *ui;
 	QVector <ASICDevice *> *pHostsToScan;

@@ -436,7 +436,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::rescanDevices()
 {
 	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
-//	sw->QuickAPIScan(DeviceList);
+	emit(NeedToRescanDevices(DeviceList));
 }
 
 void MainWindow::updateDeviceView()
