@@ -223,32 +223,8 @@
     <property name="title">
      <string>Cont&amp;rol</string>
     </property>
-    <widget class="QMenu" name="menuSet_OC_profile">
-     <property name="title">
-      <string>&amp;Set OC profile</string>
-     </property>
-     <widget class="QMenu" name="menuS9Profiles">
-      <property name="title">
-       <string>&amp;S9</string>
-      </property>
-     </widget>
-     <widget class="QMenu" name="menuL3PProfiles">
-      <property name="title">
-       <string>&amp;L3+</string>
-      </property>
-     </widget>
-     <widget class="QMenu" name="menuT9PProfiles">
-      <property name="title">
-       <string>&amp;T9+</string>
-      </property>
-     </widget>
-     <addaction name="menuS9Profiles"/>
-     <addaction name="menuL3PProfiles"/>
-     <addaction name="menuT9PProfiles"/>
-    </widget>
     <addaction name="actionDevice_settings"/>
     <addaction name="actionReset_to_default"/>
-    <addaction name="menuSet_OC_profile"/>
    </widget>
    <addaction name="settings"/>
    <addaction name="menuDevices"/>

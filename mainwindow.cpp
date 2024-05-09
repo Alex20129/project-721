@@ -193,35 +193,6 @@ void MainWindow::saveTabs()
 	}
 }
 
-void MainWindow::setOCProfile()
-{
-	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
-	ASICTableWidget *ctw=qobject_cast<ASICTableWidget *>(ui->tabWidget->currentWidget());
-	QAction *senderAction=qobject_cast<QAction *>(sender());
-
-	QStringList HostsToOC;
-	for(int i=0; i<ctw->selectionModel()->selectedRows().size(); i++)
-	{
-		HostsToOC.append(ctw->selectionModel()->selectedRows().at(i).data().toString());
-	}
-	if(HostsToOC.isEmpty())
-	{
-		gLogger->Log("Host list is empty =/", LOG_NOTICE);
-		return;
-	}
-	for(int host=0; host<HostsToOC.count(); host++)
-	{
-		for(int device=0; device<DefaultTabWidget->DeviceList->count(); device++)
-		{
-			if(HostsToOC.at(host)==DefaultTabWidget->DeviceList->at(device)->Address.toString())
-			{
-				DefaultTabWidget->DeviceList->at(device)->SendCommand(QByteArray("select_profile|")+senderAction->text().toUtf8());
-				break;
-			}
-		}
-	}
-}
-
 void MainWindow::closeEvent(QCloseEvent *event)
 {
 	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);

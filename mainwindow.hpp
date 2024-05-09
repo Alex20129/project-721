@@ -48,7 +48,6 @@ public:
     QStringList *ColumnTitles;
 
 private slots:
-    void setOCProfile();
     void rescanDevices();
     void sleepOrWake();
     void on_timeToSleep();
