@@ -48,7 +48,7 @@ public:
     QHostAddress Address;
     QString Type;
     QString Miner;
-    QString Description;
+	QString Description;
     bool IsAlarmed();
     uint State();
     Pool *ActivePool();

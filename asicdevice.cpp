@@ -377,6 +377,11 @@ void ASICDevice::updateStats(QByteArray *data)
             Miner=str;
             continue;
         }
+		if(1==sscanf(&data->data()[i], ",Description=%127[^,|]", str))
+		{
+			Description=str;
+			continue;
+		}
         if(2==sscanf(&data->data()[i], "|POOL=%u,%511[^|]", &uval, poolsubstr))
         {
             if(uval>=DEVICE_POOLS_NUM)

@@ -150,7 +150,6 @@ int MainWindow::loadTabs()
 			int group=gAppConfig->JSONData.value("devices").toArray().at(device).toObject().value("group").toInt();
 			ASICDevice *newDevice=new(ASICDevice);
 			newDevice->Address=QHostAddress(gAppConfig->JSONData.value("devices").toArray().at(device).toObject().value("address").toString());
-			newDevice->Description=gAppConfig->JSONData.value("devices").toArray().at(device).toObject().value("description").toString();
 			DefaultTabWidget->addDevice(newDevice);
 			if(group<ui->tabWidget->count())
 			{
@@ -187,6 +186,8 @@ void MainWindow::saveTabs()
 		QJsonObject DeviceObject;
 		DeviceObject.insert("address", DeviceList->at(device)->Address.toString());
 		DeviceObject.insert("description", DeviceList->at(device)->Description);
+		DeviceObject.insert("miner", DeviceList->at(device)->Miner);
+		DeviceObject.insert("type", DeviceList->at(device)->Type);
 		DeviceObject.insert("group", QJsonValue::fromVariant(DeviceList->at(device)->GroupID));
 		Devices.append(DeviceObject);
 		gAppConfig->JSONData.insert("devices", Devices);
