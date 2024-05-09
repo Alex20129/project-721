@@ -44,7 +44,6 @@ public:
     quint16 APIPort;
     QString HostName;
     QString UserName;
-    QString CurrentOCProfile;
     QString Password;
     QHostAddress Address;
     QString Type;

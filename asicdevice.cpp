@@ -14,7 +14,6 @@ Pool::Pool()
 ASICDevice::ASICDevice(QObject *parent) : QObject(parent)
 {
     _pIsBusy=false;
-    CurrentOCProfile="none";
     APIPort=
     WebPort=
     GroupID=
@@ -376,11 +375,6 @@ void ASICDevice::updateStats(QByteArray *data)
         if(1==sscanf(&data->data()[i], ",Miner=%127[^,|]", str))
         {
             Miner=str;
-            continue;
-        }
-        if(1==sscanf(&data->data()[i], "CurrentOCProfile=%127[^|]", str))
-        {
-            CurrentOCProfile=str;
             continue;
         }
         if(2==sscanf(&data->data()[i], "|POOL=%u,%511[^|]", &uval, poolsubstr))

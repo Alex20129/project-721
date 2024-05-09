@@ -14,7 +14,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 	firmwareData=new(QByteArray);
 	DeviceList=new(QVector <ASICDevice *>);
-	ColumnTitles=new QStringList({"Address", "Type", "Miner", "HashRate", "Temperature", "Frequency", "Uptime", "Hardware Errors", "Pool", "User", "OC Profile"});
+	ColumnTitles=new QStringList({"Address", "Type", "Miner", "HashRate", "Temperature", "Frequency", "Uptime", "Hardware Errors", "Pool", "User"});
 
 	RefreshTimer=new(QTimer);
 	RefreshTimer->setInterval(DEFAULT_UPDATE_INTERVAL);
@@ -305,8 +305,6 @@ void MainWindow::updateDeviceView()
 		item[8]->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 		item[9]->setData(Qt::DisplayRole, catw->DeviceList->at(row)->ActivePool()->User);
 		item[9]->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-		item[10]->setData(Qt::DisplayRole, catw->DeviceList->at(row)->CurrentOCProfile);
-		item[10]->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 
 		for(int column=0; column<catw->columnCount(); column++)
 		{
