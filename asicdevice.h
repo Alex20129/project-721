@@ -42,7 +42,6 @@ public:
 	static uint32_t ActiveThreadsNum;
     quint16 WebPort;
     quint16 APIPort;
-    QString HostName;
     QString UserName;
     QString Password;
     QHostAddress Address;
