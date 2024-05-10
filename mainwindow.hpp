@@ -29,7 +29,8 @@ signals:
 	void NeedToShowScannerWindow();
 	void NeedToShowSleepSettingsWindow();
 	void NeedToShowAddNewDeviceDialog();
-	void NeedToShowAddNewGroupDialog();
+	void NeedToShowGroupSettings(int group_id);
+	void NeedToCreateNewGroup();
 public slots:
     void updateDeviceView();
     void on_customContextMenuRequested(QPoint position);
@@ -41,6 +42,8 @@ public slots:
 public:
     explicit MainWindow(QWidget *parent=nullptr);
     ~MainWindow();
+	void loadTabs();
+	void saveTabs();
     void closeEvent(QCloseEvent *event);
     void uploadFirmware(ASICDevice *device);
     bool IsAwake;
@@ -77,11 +80,8 @@ private slots:
 private:
 	ASICTableWidget *DefaultTabWidget;
 	QVector <ASICDevice *> *DefaultDeviceList;
-    int loadTabs();
-    void saveTabs();
     uint ActiveUploadingThreads;
     QByteArray *firmwareData;
-    uint GroupsCount;
     Ui::MainWindow *ui;
 };
 

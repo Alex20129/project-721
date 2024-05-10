@@ -23,9 +23,9 @@ ADD_EXECUTABLE(${PROJECT_NAME}
         basicsettingswindow.ui
         devicesettingswindow.ui
         addnewdevicedialog.ui
-        addnewgroupdialog.ui
+		groupsettingsdialog.ui
         addnewdevicedialog.h
-        addnewgroupdialog.h
+		groupsettingsdialog.h
         asicdevice.h
         asictablewidget.h
         basicsettingswindow.h
@@ -39,7 +39,7 @@ ADD_EXECUTABLE(${PROJECT_NAME}
 		logger.hpp
         main.cpp
         addnewdevicedialog.cpp
-        addnewgroupdialog.cpp
+		groupsettingsdialog.cpp
         asicdevice.cpp
         asictablewidget.cpp
         basicsettingswindow.cpp

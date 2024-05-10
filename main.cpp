@@ -6,7 +6,7 @@
 #include "devicesettingswindow.h"
 #include "scannerwindow.h"
 #include "addnewdevicedialog.h"
-#include "addnewgroupdialog.h"
+#include "groupsettingsdialog.h"
 #include "sleepsettingswindow.h"
 #include "configurationholder.h"
 
@@ -18,7 +18,7 @@ NetworkSettingsWindow *NetSetWin;
 DeviceSettingsWindow *DevSetWin;
 ScannerWindow *ScanWin;
 AddNewDeviceDialog *andd;
-AddNewGroupDialog *angd;
+GroupSettingsDialog *GroupSetDia;
 SleepSettingsWindow *SleepSetWin;
 
 #include <unistd.h>
@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
 	ScanWin=new ScannerWindow;
 	SleepSetWin=new SleepSettingsWindow;
     andd=new AddNewDeviceDialog;
-    angd=new AddNewGroupDialog;
+	GroupSetDia=new GroupSettingsDialog;
 	MainWin=new MainWindow;
 
 	QApplication::connect(MainWin, &MainWindow::NeedToShowBasicSettingsWindow, BasicSetWin, &BasicSettingsWindow::show);
@@ -52,7 +52,8 @@ int main(int argc, char *argv[])
 	QApplication::connect(MainWin, &MainWindow::NeedToShowScannerWindow, ScanWin, &ScannerWindow::show);
 	QApplication::connect(MainWin, &MainWindow::NeedToShowSleepSettingsWindow, SleepSetWin, &SleepSettingsWindow::show);
 	QApplication::connect(MainWin, &MainWindow::NeedToShowAddNewDeviceDialog, andd, &AddNewDeviceDialog::show);
-	QApplication::connect(MainWin, &MainWindow::NeedToShowAddNewGroupDialog, angd, &AddNewGroupDialog::show);
+	QApplication::connect(MainWin, &MainWindow::NeedToShowGroupSettings, GroupSetDia, &GroupSettingsDialog::showGroupSettings);
+	QApplication::connect(MainWin, &MainWindow::NeedToCreateNewGroup, GroupSetDia, &QDialog::show);
 	QApplication::connect(MainWin, &MainWindow::NeedToRescanDevices, ScanWin, &ScannerWindow::ScanDevices);
 
 	QApplication::connect(ScanWin, &ScannerWindow::ScanIsDone, MainWin, &MainWindow::updateDeviceView);
@@ -60,8 +61,9 @@ int main(int argc, char *argv[])
 
 	QApplication::connect(DevSetWin, &DeviceSettingsWindow::deviceSettingsObtained, MainWin, &MainWindow::uploadSettings);
 	QApplication::connect(andd, &AddNewDeviceDialog::deviceDataObtained, MainWin, &MainWindow::addNewDevices);
-	QApplication::connect(angd, &AddNewGroupDialog::groupDataObtained, MainWin, &MainWindow::addNewGroup);
+	QApplication::connect(GroupSetDia, &GroupSettingsDialog::groupDataObtained, MainWin, &MainWindow::addNewGroup);
 
+	MainWin->loadTabs();
 	MainWin->show();
 
     ret=a.exec();

@@ -10,15 +10,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 {
 	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
 	ActiveUploadingThreads=0;
-	GroupsCount=0;
 
 	firmwareData=new(QByteArray);
 	ColumnTitles=new QStringList({"Address", "Type", "Miner", "HashRate", "Temperature", "Frequency", "Uptime", "Hardware Errors", "Pool", "User"});
 
 	RefreshTimer=new(QTimer);
 	RefreshTimer->setInterval(DEFAULT_UPDATE_INTERVAL);
-	connect(RefreshTimer, SIGNAL(timeout()), this, SLOT(rescanDevices()));
-//	connect(RefreshTimer, SIGNAL(timeout()), this, SLOT(updateDeviceView()));
+	connect(RefreshTimer, &QTimer::timeout, this, &MainWindow::rescanDevices);
 
 	SleepWakeTimer=new(QTimer);
 	SleepWakeTimer->setInterval(2000);
@@ -33,11 +31,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	connect(this, SIGNAL(timeToWakeUp()), this, SLOT(on_timeToWakeUp()));
 
 	this->setWindowTitle(QString(PROGRAM_NAME)+QString(" ")+QString(PROGRAM_VERSION));
-
-	if(!loadTabs())
-	{
-		emit(NeedToShowAddNewGroupDialog());
-	}
 
 	connect(ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(updateDeviceView()));
 }
@@ -117,7 +110,7 @@ void MainWindow::on_timeToWakeUp()
 	}
 }
 
-int MainWindow::loadTabs()
+void MainWindow::loadTabs()
 {
 	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
 	int groupsCount, group;
@@ -140,7 +133,8 @@ int MainWindow::loadTabs()
 	}
 	if(groupsCount<1)
 	{
-		return(groupsCount);
+		emit(NeedToCreateNewGroup());
+		return;
 	}
 	int devicesCount, device;
 	QJsonArray devices;
@@ -161,7 +155,7 @@ int MainWindow::loadTabs()
 			TabWidget->addDevice(newDevice);
 		}
 	}
-	return(groupsCount);
+	return;
 }
 
 void MainWindow::saveTabs()
@@ -395,16 +389,14 @@ void MainWindow::addNewGroup(QString title, QString description, QString usernam
 	qweWidget->Password=password;
 	qweWidget->APIPort=apiport;
 	qweWidget->WebPort=webport;
-	qweWidget->GroupID=GroupsCount;
+	qweWidget->GroupID=ui->tabWidget->count();
 
-	ui->tabWidget->addTab(qweWidget, qweWidget->Title);
-
-	if(0==GroupsCount)
+	if(0==qweWidget->GroupID)
 	{
 		DefaultDeviceList=qweWidget->DeviceList;
 		DefaultTabWidget=qweWidget;
 	}
-	GroupsCount++;
+	ui->tabWidget->addTab(qweWidget, qweWidget->Title);
 
 	QAction *qweAction=new QAction(title, qweWidget);
 	ui->menuMove_devices_to->addAction(qweAction);
@@ -847,12 +839,7 @@ void MainWindow::on_tabWidget_tabCloseRequested(int index)
 void MainWindow::on_tabWidget_tabBarDoubleClicked(int index)
 {
 	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
-	ASICTableWidget *ctw=qobject_cast<ASICTableWidget *>(ui->tabWidget->currentWidget());
-	gLogger->Log("tab index '"+to_string(index)+"'", LOG_DEBUG);
-	gLogger->Log("tab Title '"+ctw->Title.toStdString()+"'", LOG_DEBUG);
-	gLogger->Log("tab Description '"+ctw->Description.toStdString()+"'", LOG_DEBUG);
-	gLogger->Log("tab UserName '"+ctw->UserName.toStdString()+"'", LOG_DEBUG);
-	gLogger->Log("tab Password '"+ctw->Password.toStdString()+"'", LOG_DEBUG);
+	emit(NeedToShowGroupSettings(index));
 }
 
 void MainWindow::on_actionSupport_website_triggered()
@@ -894,7 +881,7 @@ void MainWindow::on_actionAdd_devices_triggered()
 
 void MainWindow::on_actionAdd_group_triggered()
 {
-	emit(NeedToShowAddNewGroupDialog());
+	emit(NeedToCreateNewGroup());
 }
 
 void MainWindow::on_deviceSettingsButton_clicked()

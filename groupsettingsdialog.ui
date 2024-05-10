@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>AddNewGroupDialog</class>
- <widget class="QDialog" name="AddNewGroupDialog">
+ <class>GroupSettingsDialog</class>
+ <widget class="QDialog" name="GroupSettingsDialog">
   <property name="windowModality">
    <enum>Qt::ApplicationModal</enum>
   </property>
@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Add new device group</string>
+   <string>Group settings</string>
   </property>
   <property name="modal">
    <bool>true</bool>
@@ -149,7 +149,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>AddNewGroupDialog</receiver>
+   <receiver>GroupSettingsDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -165,7 +165,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>AddNewGroupDialog</receiver>
+   <receiver>GroupSettingsDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
