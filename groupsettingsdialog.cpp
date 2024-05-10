@@ -7,8 +7,9 @@ GroupSettingsDialog::GroupSettingsDialog(QWidget *parent) : QDialog(parent),
     ui(new Ui::GroupSettingsDialog)
 {
 	gLogger->Log("GroupSettingsDialog::"+string(__FUNCTION__), LOG_DEBUG);
-	pGroupID=-1;
-    ui->setupUi(this);
+	ui->setupUi(this);
+	pGroupWidget=nullptr;
+	ui->title->setText(QString("New group"));
 }
 
 GroupSettingsDialog::~GroupSettingsDialog()
@@ -19,39 +20,51 @@ GroupSettingsDialog::~GroupSettingsDialog()
 void GroupSettingsDialog::showGroupSettings(int group_id)
 {
 	gLogger->Log("GroupSettingsDialog::"+string(__FUNCTION__), LOG_DEBUG);
-	pGroupID=group_id;
-	ASICTableWidget *group=gMainWin->GroupTabsWidgets->at(group_id);
-	ui->title->setText(group->Title);
-	ui->description->setText(group->Description);
-	ui->username->setText(group->UserName);
-	ui->password->setText(group->Password);
-	ui->apiport->setText(QString::number(group->APIPort));
-	ui->webport->setText(QString::number(group->WebPort));
+	if(group_id<0)
+	{
+		gLogger->Log("incorrect group_id="+to_string(group_id), LOG_ERR);
+		return;
+	}
+	pGroupWidget=gMainWin->GroupTabsWidgets->at(group_id);
+	ui->title->setText(pGroupWidget->Title);
+	ui->description->setText(pGroupWidget->Description);
+	ui->username->setText(pGroupWidget->UserName);
+	ui->password->setText(pGroupWidget->Password);
+	ui->apiport->setText(QString::number(pGroupWidget->APIPort));
+	ui->webport->setText(QString::number(pGroupWidget->WebPort));
 	this->show();
 }
 
 void GroupSettingsDialog::on_buttonBox_accepted()
 {
 	gLogger->Log("GroupSettingsDialog::"+string(__FUNCTION__), LOG_DEBUG);
-	ASICTableWidget *newGroupWidget;
-	if(pGroupID<0)
+	bool isANewGroup=!pGroupWidget;
+	if(isANewGroup)
 	{
-		newGroupWidget=new ASICTableWidget(gMainWin);
-		newGroupWidget->Title=ui->title->text();
-		newGroupWidget->Description=ui->description->toPlainText();
-		newGroupWidget->UserName=ui->username->text();
-		newGroupWidget->Password=ui->password->text();
-		newGroupWidget->APIPort=static_cast<quint16>(ui->apiport->text().toUInt());
-		newGroupWidget->WebPort=static_cast<quint16>(ui->webport->text().toUInt());
-		emit(newGroupCreated(newGroupWidget));
-		return;
+		pGroupWidget=new ASICTableWidget(gMainWin);
 	}
-	ASICTableWidget *existingGroup=gMainWin->GroupTabsWidgets->at(pGroupID);
+	pGroupWidget->Title=ui->title->text();
+	pGroupWidget->Description=ui->description->toPlainText();
+	pGroupWidget->UserName=ui->username->text();
+	pGroupWidget->Password=ui->password->text();
+	pGroupWidget->APIPort=static_cast<quint16>(ui->apiport->text().toUInt());
+	pGroupWidget->WebPort=static_cast<quint16>(ui->webport->text().toUInt());
+	if(isANewGroup)
+	{
+		emit(newGroupCreated(pGroupWidget));
+		pGroupWidget=nullptr;
+	}
+	else
+	{
+		emit(groupSettingsUpdated(pGroupWidget));
+		pGroupWidget=nullptr;
+	}
 }
 
 void GroupSettingsDialog::on_buttonBox_rejected()
 {
 	gLogger->Log("GroupSettingsDialog::"+string(__FUNCTION__), LOG_DEBUG);
-	pGroupID=-1;
+	ui->title->setText(QString("New group"));
+	pGroupWidget=nullptr;
 }
 

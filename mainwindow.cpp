@@ -32,9 +32,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	connect(this, SIGNAL(timeToSleep()), this, SLOT(on_timeToSleep()));
 	connect(this, SIGNAL(timeToWakeUp()), this, SLOT(on_timeToWakeUp()));
 
-	this->setWindowTitle(QString(PROGRAM_NAME)+QString(" ")+QString(PROGRAM_VERSION));
-
 	connect(ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(updateDeviceView()));
+
+	setWindowTitle(QString(PROGRAM_NAME)+QString(" ")+QString(PROGRAM_VERSION));
 
 	if(!gMainWin)
 	{
@@ -447,6 +447,10 @@ void MainWindow::on_rebootButton_clicked()
 void MainWindow::addDevice(ASICDevice *device)
 {
 	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
+	if(GroupTabsWidgets->isEmpty())
+	{
+		return;
+	}
 	GroupTabsWidgets->first()->addDevice(device);
 }
 

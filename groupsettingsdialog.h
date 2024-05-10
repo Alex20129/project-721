@@ -13,8 +13,8 @@ class GroupSettingsDialog : public QDialog
 {
     Q_OBJECT
 signals:
-	void newGroupCreated(ASICTableWidget *new_group);
-	void groupSettingsUpdated();
+	void newGroupCreated(ASICTableWidget *new_group_widget);
+	void groupSettingsUpdated(ASICTableWidget *group_widget);
 public:
     explicit GroupSettingsDialog(QWidget *parent=nullptr);
     ~GroupSettingsDialog();
@@ -25,7 +25,7 @@ private slots:
 	void on_buttonBox_rejected();
 
 private:
-	int pGroupID;
+	ASICTableWidget *pGroupWidget;
     Ui::GroupSettingsDialog *ui;
 };
 
