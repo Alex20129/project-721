@@ -1,11 +1,10 @@
 #include "groupsettingsdialog.h"
 #include "ui_groupsettingsdialog.h"
-#include <QDebug>
+#include "mainwindow.hpp"
 
 GroupSettingsDialog::GroupSettingsDialog(QWidget *parent) : QDialog(parent),
     ui(new Ui::GroupSettingsDialog)
 {
-	pGroupID=-1;
     ui->setupUi(this);
 }
 
@@ -16,9 +15,7 @@ GroupSettingsDialog::~GroupSettingsDialog()
 
 void GroupSettingsDialog::showGroupSettings(int group_id)
 {
-	qInfo()<<"pGroupID "<<pGroupID;
-	pGroupID=group_id;
-	qInfo()<<"pGroupID "<<pGroupID;
+
 }
 
 void GroupSettingsDialog::on_buttonBox_accepted()

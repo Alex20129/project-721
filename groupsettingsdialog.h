@@ -22,7 +22,6 @@ private slots:
     void on_buttonBox_accepted();
 
 private:
-	int pGroupID;
     Ui::GroupSettingsDialog *ui;
 };
 

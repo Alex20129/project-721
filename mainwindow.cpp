@@ -14,6 +14,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	firmwareData=new(QByteArray);
 	ColumnTitles=new QStringList({"Address", "Type", "Miner", "HashRate", "Temperature", "Frequency", "Uptime", "Hardware Errors", "Pool", "User"});
 
+	GroupTabsWidgets=new QVector <ASICTableWidget *>;
+
 	RefreshTimer=new(QTimer);
 	RefreshTimer->setInterval(DEFAULT_UPDATE_INTERVAL);
 	connect(RefreshTimer, &QTimer::timeout, this, &MainWindow::rescanDevices);
@@ -68,9 +70,9 @@ void MainWindow::on_timeToSleep()
 	this->RefreshTimer->stop();
 	this->SleepWakeTimer->stop();
 
-	for(int device=0; device<DefaultTabWidget->DeviceList->count(); device++)
+	for(int device=0; device<GroupTabsWidgets->first()->DeviceList->size(); device++)
 	{
-		DefaultTabWidget->DeviceList->at(device)->ExecCGIScriptViaGET("/cgi-bin/kill_bmminer1.cgi");
+		GroupTabsWidgets->first()->DeviceList->at(device)->ExecCGIScriptViaGET("/cgi-bin/kill_bmminer1.cgi");
 	}
 
 	if(ui->updateButton->isFlat())
@@ -95,9 +97,9 @@ void MainWindow::on_timeToWakeUp()
 	this->RefreshTimer->stop();
 	this->SleepWakeTimer->stop();
 
-	for(int device=0; device<DefaultTabWidget->DeviceList->count(); device++)
+	for(int device=0; device<GroupTabsWidgets->first()->DeviceList->size(); device++)
 	{
-		DefaultTabWidget->DeviceList->at(device)->ExecCGIScriptViaGET("/cgi-bin/start_bmminer.cgi");
+		GroupTabsWidgets->first()->DeviceList->at(device)->ExecCGIScriptViaGET("/cgi-bin/start_bmminer.cgi");
 	}
 
 	if(ui->updateButton->isFlat())
@@ -148,11 +150,11 @@ void MainWindow::loadTabs()
 		int device_group=devices.at(device).toObject().value("group").toInt();
 		ASICDevice *newDevice=new(ASICDevice);
 		newDevice->Address=QHostAddress(devices.at(device).toObject().value("address").toString());
-		DefaultTabWidget->addDevice(newDevice);
-		if(device_group<ui->tabWidget->count())
+		GroupTabsWidgets->first()->addDevice(newDevice);
+		if(device_group>0 && device_group<ui->tabWidget->count())
 		{
-			ASICTableWidget *TabWidget=qobject_cast<ASICTableWidget *>(ui->tabWidget->widget(device_group));
-			TabWidget->addDevice(newDevice);
+			ASICTableWidget *tw=GroupTabsWidgets->at(device_group);
+			tw->addDevice(newDevice);
 		}
 	}
 	return;
@@ -165,9 +167,9 @@ void MainWindow::saveTabs()
 	gAppConfig->JSONData.remove("groups");
 	gAppConfig->JSONData.remove("devices");
 	QJsonArray Groups, Devices;
-	for(tab=0; tab<ui->tabWidget->count(); tab++)
+	for(tab=0; tab<GroupTabsWidgets->size(); tab++)
 	{
-		ASICTableWidget *TabWidget=qobject_cast<ASICTableWidget *>(ui->tabWidget->widget(tab));
+		ASICTableWidget *TabWidget=GroupTabsWidgets->at(tab);
 		QJsonObject TabObject;
 		TabObject.insert("title", TabWidget->Title);
 		TabObject.insert("description", TabWidget->Description);
@@ -178,7 +180,7 @@ void MainWindow::saveTabs()
 		Groups.append(TabObject);
 		gAppConfig->JSONData.insert("groups", Groups);
 	}
-	for(device=0; device<DefaultDeviceList->count(); device++)
+	for(device=0; device<DefaultDeviceList->size(); device++)
 	{
 		QJsonObject DeviceObject;
 		DeviceObject.insert("address", DefaultDeviceList->at(device)->Address.toString());
@@ -210,7 +212,7 @@ void MainWindow::rescanDevices()
 void MainWindow::updateDeviceView()
 {
 	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
-	ASICTableWidget *catw=qobject_cast<ASICTableWidget *>(ui->tabWidget->currentWidget());
+	ASICTableWidget *catw=GroupTabsWidgets->at(ui->tabWidget->currentIndex());
 	if(!catw)
 	{
 		return;
@@ -342,21 +344,20 @@ void MainWindow::addNewDevices(QString addressFrom, QString addressTo)
 {
 	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
 	QHostAddress AddrFrom(addressFrom), AddrTo(addressTo);
+	ASICDevice *newDevice;
 	if(AddrTo.toIPv4Address()>AddrFrom.toIPv4Address())
 	{
 		for(quint32 address=AddrFrom.toIPv4Address(); address<=AddrTo.toIPv4Address(); address++)
 		{
-			ASICDevice *newDevice;
 			newDevice=new(ASICDevice);
 			newDevice->Address=QHostAddress(address);
-			DefaultTabWidget->addDevice(newDevice);
+			GroupTabsWidgets->first()->addDevice(newDevice);
 		}
 		return;
 	}
-	ASICDevice *NewDevice;
-	NewDevice=new(ASICDevice);
-	NewDevice->Address=AddrFrom;
-	DefaultTabWidget->addDevice(NewDevice);
+	newDevice=new(ASICDevice);
+	newDevice->Address=AddrFrom;
+	GroupTabsWidgets->first()->addDevice(newDevice);
 	updateDeviceView();
 }
 
@@ -389,13 +390,13 @@ void MainWindow::addNewGroup(QString title, QString description, QString usernam
 	qweWidget->Password=password;
 	qweWidget->APIPort=apiport;
 	qweWidget->WebPort=webport;
-	qweWidget->GroupID=ui->tabWidget->count();
+	qweWidget->GroupID=GroupTabsWidgets->size();
 
 	if(0==qweWidget->GroupID)
 	{
 		DefaultDeviceList=qweWidget->DeviceList;
-		DefaultTabWidget=qweWidget;
 	}
+	GroupTabsWidgets->append(qweWidget);
 	ui->tabWidget->addTab(qweWidget, qweWidget->Title);
 
 	QAction *qweAction=new QAction(title, qweWidget);
@@ -406,7 +407,7 @@ void MainWindow::addNewGroup(QString title, QString description, QString usernam
 void MainWindow::on_rebootButton_clicked()
 {
 	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
-	ASICTableWidget *ctw=qobject_cast<ASICTableWidget *>(ui->tabWidget->currentWidget());
+	ASICTableWidget *ctw=GroupTabsWidgets->at(ui->tabWidget->currentIndex());
 	QStringList HostsToReboot;
 	ASICDevice *PickedDevice;
 	for(int i=0; i<ctw->selectionModel()->selectedRows().size(); i++)
@@ -420,11 +421,11 @@ void MainWindow::on_rebootButton_clicked()
 	}
 	for(int host=0; host<HostsToReboot.count(); host++)
 	{
-		for(int device=0; device<DefaultTabWidget->DeviceList->count(); device++)
+		for(int device=0; device<GroupTabsWidgets->first()->DeviceList->size(); device++)
 		{
-			if(HostsToReboot.at(host)==DefaultTabWidget->DeviceList->at(device)->Address.toString())
+			if(HostsToReboot.at(host)==GroupTabsWidgets->first()->DeviceList->at(device)->Address.toString())
 			{
-				PickedDevice=DefaultTabWidget->DeviceList->at(device);
+				PickedDevice=GroupTabsWidgets->first()->DeviceList->at(device);
 				break;
 			}
 		}
@@ -442,14 +443,13 @@ void MainWindow::on_rebootButton_clicked()
 void MainWindow::addDevice(ASICDevice *device)
 {
 	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
-	DefaultTabWidget->addDevice(device);
+	GroupTabsWidgets->first()->addDevice(device);
 }
 
 void MainWindow::addDevicesToGroup()
 {
 	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
-	ASICTableWidget *ctw=qobject_cast<ASICTableWidget *>(ui->tabWidget->currentWidget());
-
+	ASICTableWidget *ctw=GroupTabsWidgets->at(ui->tabWidget->currentIndex());
 	QAction *senderAction=qobject_cast<QAction *>(sender());
 	ASICTableWidget *senderParentWidget=qobject_cast<ASICTableWidget *>(senderAction->parent());
 
@@ -465,11 +465,11 @@ void MainWindow::addDevicesToGroup()
 	}
 	for(int host=0; host<HostsToAdd.count(); host++)
 	{
-		for(int i=0; i<DefaultTabWidget->DeviceList->count(); i++)
+		for(int i=0; i<GroupTabsWidgets->first()->DeviceList->size(); i++)
 		{
-			if(HostsToAdd.at(host)==DefaultTabWidget->DeviceList->at(i)->Address.toString())
+			if(HostsToAdd.at(host)==GroupTabsWidgets->first()->DeviceList->at(i)->Address.toString())
 			{
-				senderParentWidget->addDevice(DefaultTabWidget->DeviceList->at(i));
+				senderParentWidget->addDevice(GroupTabsWidgets->first()->DeviceList->at(i));
 				break;
 			}
 		}
@@ -505,7 +505,7 @@ void MainWindow::on_firmwareButton_clicked()
 	gLogger->Log("Firmware has been loaded from "+firmwareFile->fileName().toStdString(), LOG_INFO);
 	delete(firmwareFile);
 
-	ASICTableWidget *ctw=qobject_cast<ASICTableWidget *>(ui->tabWidget->currentWidget());
+	ASICTableWidget *ctw=GroupTabsWidgets->at(ui->tabWidget->currentIndex());
 	QStringList HostsToFlash;
 	for(int i=0; i<ctw->selectionModel()->selectedRows().size(); i++)
 	{
@@ -526,11 +526,11 @@ void MainWindow::on_firmwareButton_clicked()
 		{
 			QApplication::processEvents();
 		}
-		for(int device=0; device<DefaultTabWidget->DeviceList->count(); device++)
+		for(int device=0; device<GroupTabsWidgets->first()->DeviceList->size(); device++)
 		{
-			if(HostsToFlash.at(host)==DefaultTabWidget->DeviceList->at(device)->Address.toString())
+			if(HostsToFlash.at(host)==GroupTabsWidgets->first()->DeviceList->at(device)->Address.toString())
 			{
-				uploadFirmware(DefaultTabWidget->DeviceList->at(device));
+				uploadFirmware(GroupTabsWidgets->first()->DeviceList->at(device));
 				break;
 			}
 		}
@@ -605,12 +605,12 @@ void MainWindow::uploadFirmwareFinished(QNetworkReply *reply)
 	gLogger->Log(ReceivedData.toStdString(), LOG_DEBUG);
 	reply->manager()->disconnect();
 	reply->manager()->deleteLater();
-	for(int device=0; device<DefaultTabWidget->DeviceList->count(); device++)
+	for(int device=0; device<GroupTabsWidgets->first()->DeviceList->size(); device++)
 	{
-		if(reply->request().url().host()==DefaultTabWidget->DeviceList->at(device)->Address.toString())
+		if(reply->request().url().host()==GroupTabsWidgets->first()->DeviceList->at(device)->Address.toString())
 		{
 			gLogger->Log("now reboot device "+reply->request().url().host().toStdString(), LOG_INFO);
-			DefaultTabWidget->DeviceList->at(device)->ExecCGIScriptViaGET("/cgi-bin/reboot.cgi");
+			GroupTabsWidgets->first()->DeviceList->at(device)->ExecCGIScriptViaGET("/cgi-bin/reboot.cgi");
 			break;
 		}
 	}
@@ -626,7 +626,7 @@ void MainWindow::uploadFirmwareFinished(QNetworkReply *reply)
 void MainWindow::on_actionReset_to_default_triggered()
 {
 	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
-	ASICTableWidget *ctw=qobject_cast<ASICTableWidget *>(ui->tabWidget->currentWidget());
+	ASICTableWidget *ctw=GroupTabsWidgets->at(ui->tabWidget->currentIndex());
 	QStringList HostsToReset;
 	for(int i=0; i<ctw->selectionModel()->selectedRows().size(); i++)
 	{
@@ -639,12 +639,12 @@ void MainWindow::on_actionReset_to_default_triggered()
 	}
 	for(int host=0; host<HostsToReset.count(); host++)
 	{
-		for(int device=0; device<DefaultTabWidget->DeviceList->count(); device++)
+		for(int device=0; device<GroupTabsWidgets->first()->DeviceList->size(); device++)
 		{
-			if(HostsToReset.at(host)==DefaultTabWidget->DeviceList->at(device)->Address.toString())
+			if(HostsToReset.at(host)==GroupTabsWidgets->first()->DeviceList->at(device)->Address.toString())
 			{
 				gLogger->Log("now reset device "+HostsToReset.at(host).toStdString(), LOG_INFO);
-				DefaultTabWidget->DeviceList->at(device)->ExecCGIScriptViaGET("/cgi-bin/reset_conf.cgi");
+				GroupTabsWidgets->first()->DeviceList->at(device)->ExecCGIScriptViaGET("/cgi-bin/reset_conf.cgi");
 				break;
 			}
 		}
@@ -680,7 +680,7 @@ void MainWindow::on_actionGroup_summary_triggered()
 void MainWindow::on_actionRemove_devices_from_group_triggered()
 {
 	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
-	ASICTableWidget *ctw=qobject_cast<ASICTableWidget *>(ui->tabWidget->currentWidget());
+	ASICTableWidget *ctw=GroupTabsWidgets->at(ui->tabWidget->currentIndex());
 	QStringList HostsToRemove;
 	for(int i=0; i<ctw->selectionModel()->selectedRows().size(); i++)
 	{
@@ -691,19 +691,20 @@ void MainWindow::on_actionRemove_devices_from_group_triggered()
 		gLogger->Log("Host list is empty =/", LOG_NOTICE);
 		return;
 	}
+
 	for(int host=0; host<HostsToRemove.count(); host++)
 	{
-		for(int device=0; device<DefaultTabWidget->DeviceList->count(); device++)
+		for(int device=0; device<GroupTabsWidgets->first()->DeviceList->size(); device++)
 		{
-			if(HostsToRemove.at(host)==DefaultTabWidget->DeviceList->at(device)->Address.toString())
+			if(HostsToRemove.at(host)==GroupTabsWidgets->first()->DeviceList->at(device)->Address.toString())
 			{
-				gLogger->Log("now remove the device"+HostsToRemove.at(host).toStdString(), LOG_INFO);
-				ASICDevice *deviceToRemove=DefaultTabWidget->DeviceList->at(device);
-				if(ctw==DefaultTabWidget)
+				gLogger->Log("now remove the device "+HostsToRemove.at(host).toStdString(), LOG_INFO);
+				ASICDevice *deviceToRemove=GroupTabsWidgets->first()->DeviceList->at(device);
+				if(ctw==GroupTabsWidgets->first())
 				{
-					for(int tab=0; tab<ui->tabWidget->count(); tab++)
+					for(int tab=0; tab<GroupTabsWidgets->size(); tab++)
 					{
-						ASICTableWidget *tw=qobject_cast<ASICTableWidget *>(ui->tabWidget->widget(tab));
+						ASICTableWidget *tw=GroupTabsWidgets->at(tab);
 						tw->removeDevice(deviceToRemove);
 					}
 					delete deviceToRemove;
@@ -723,7 +724,7 @@ void MainWindow::on_actionRemove_devices_from_group_triggered()
 void MainWindow::uploadSettings(QStringList settings)
 {
 	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
-	ASICTableWidget *ctw=qobject_cast<ASICTableWidget *>(ui->tabWidget->currentWidget());
+	ASICTableWidget *ctw=GroupTabsWidgets->at(ui->tabWidget->currentIndex());
 	QStringList HostsToSetup;
 	QByteArray DataToSend;
 	ASICDevice *PickedDevice;
@@ -754,11 +755,11 @@ void MainWindow::uploadSettings(QStringList settings)
 		{
 			SettingsToSendJSON.remove("pools");
 		}
-		for(int device=0; device<DefaultTabWidget->DeviceList->count(); device++)
+		for(int device=0; device<GroupTabsWidgets->first()->DeviceList->size(); device++)
 		{
-			if(HostsToSetup.at(host)==DefaultTabWidget->DeviceList->at(device)->Address.toString())
+			if(HostsToSetup.at(host)==GroupTabsWidgets->first()->DeviceList->at(device)->Address.toString())
 			{
-				PickedDevice=DefaultTabWidget->DeviceList->at(device);
+				PickedDevice=GroupTabsWidgets->first()->DeviceList->at(device);
 				break;
 			}
 		}

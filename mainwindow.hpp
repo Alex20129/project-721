@@ -78,8 +78,8 @@ private slots:
 	void on_searchButton_clicked();
 
 private:
-	ASICTableWidget *DefaultTabWidget;
 	QVector <ASICDevice *> *DefaultDeviceList;
+	QVector <ASICTableWidget *> *GroupTabsWidgets;
     uint ActiveUploadingThreads;
     QByteArray *firmwareData;
     Ui::MainWindow *ui;
