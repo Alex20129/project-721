@@ -33,6 +33,8 @@ int main(int argc, char *argv[])
     gAppConfig=new ConfigurationHolder;
 	gAppConfig->Load(QString(PROGRAM_SHORT_NAME ".json"));
 
+	gLogger->Log("Start now", LOG_NOTICE);
+
     QApplication a(argc, argv);
 
 	BasicSetWin=new BasicSettingsWindow;
@@ -60,7 +62,6 @@ int main(int argc, char *argv[])
 	QApplication::connect(andd, &AddNewDeviceDialog::deviceDataObtained, MainWin, &MainWindow::addNewDevices);
 	QApplication::connect(angd, &AddNewGroupDialog::groupDataObtained, MainWin, &MainWindow::addNewGroup);
 
-	gLogger->Log("Start now", LOG_NOTICE);
 	MainWin->show();
 
     ret=a.exec();

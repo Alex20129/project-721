@@ -76,7 +76,7 @@ private slots:
 
 private:
 	ASICTableWidget *DefaultTabWidget;
-	QVector <ASICDevice *> *DeviceList;
+	QVector <ASICDevice *> *DefaultDeviceList;
     int loadTabs();
     void saveTabs();
     uint ActiveUploadingThreads;

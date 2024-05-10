@@ -13,7 +13,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	GroupsCount=0;
 
 	firmwareData=new(QByteArray);
-	DeviceList=new(QVector <ASICDevice *>);
 	ColumnTitles=new QStringList({"Address", "Type", "Miner", "HashRate", "Temperature", "Frequency", "Uptime", "Hardware Errors", "Pool", "User"});
 
 	RefreshTimer=new(QTimer);
@@ -121,44 +120,48 @@ void MainWindow::on_timeToWakeUp()
 int MainWindow::loadTabs()
 {
 	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
-	int tabsCount=0, tab;
+	int groupsCount, group;
+	QJsonArray groups;
 	if(gAppConfig->JSONData.value("groups").isArray())
 	{
-		tabsCount=gAppConfig->JSONData.value("groups").toArray().count();
-		for(tab=0; tab<tabsCount; tab++)
-		{
-			addNewGroup(
-			gAppConfig->JSONData.value("groups").toArray().at(tab).toObject().value("title").toString(),
-			gAppConfig->JSONData.value("groups").toArray().at(tab).toObject().value("description").toString(),
-			gAppConfig->JSONData.value("groups").toArray().at(tab).toObject().value("username").toString(),
-			gAppConfig->JSONData.value("groups").toArray().at(tab).toObject().value("password").toString(),
-			gAppConfig->JSONData.value("groups").toArray().at(tab).toObject().value("apiport").toInt(),
-			gAppConfig->JSONData.value("groups").toArray().at(tab).toObject().value("webport").toInt()
-			);
-		}
+		groups=gAppConfig->JSONData.value("groups").toArray();
 	}
-	else
+	groupsCount=groups.size();
+	for(group=0; group<groupsCount; group++)
 	{
-		return(0);
+		addNewGroup(
+		groups.at(group).toObject().value("title").toString(),
+		groups.at(group).toObject().value("description").toString(),
+		groups.at(group).toObject().value("username").toString(),
+		groups.at(group).toObject().value("password").toString(),
+		groups.at(group).toObject().value("apiport").toInt(),
+		groups.at(group).toObject().value("webport").toInt()
+		);
 	}
-	int devicesCount=0, device;
+	if(groupsCount<1)
+	{
+		return(groupsCount);
+	}
+	int devicesCount, device;
+	QJsonArray devices;
 	if(gAppConfig->JSONData.value("devices").isArray())
 	{
-		devicesCount=gAppConfig->JSONData.value("devices").toArray().count();
-		for(device=0; device<devicesCount; device++)
+		devices=gAppConfig->JSONData.value("devices").toArray();
+	}
+	devicesCount=devices.size();
+	for(device=0; device<devicesCount; device++)
+	{
+		int device_group=devices.at(device).toObject().value("group").toInt();
+		ASICDevice *newDevice=new(ASICDevice);
+		newDevice->Address=QHostAddress(devices.at(device).toObject().value("address").toString());
+		DefaultTabWidget->addDevice(newDevice);
+		if(device_group<ui->tabWidget->count())
 		{
-			int group=gAppConfig->JSONData.value("devices").toArray().at(device).toObject().value("group").toInt();
-			ASICDevice *newDevice=new(ASICDevice);
-			newDevice->Address=QHostAddress(gAppConfig->JSONData.value("devices").toArray().at(device).toObject().value("address").toString());
-			DefaultTabWidget->addDevice(newDevice);
-			if(group<ui->tabWidget->count())
-			{
-				ASICTableWidget *TabWidget=qobject_cast<ASICTableWidget *>(ui->tabWidget->widget(group));
-				TabWidget->addDevice(newDevice);
-			}
+			ASICTableWidget *TabWidget=qobject_cast<ASICTableWidget *>(ui->tabWidget->widget(device_group));
+			TabWidget->addDevice(newDevice);
 		}
 	}
-	return(tabsCount);
+	return(groupsCount);
 }
 
 void MainWindow::saveTabs()
@@ -181,14 +184,14 @@ void MainWindow::saveTabs()
 		Groups.append(TabObject);
 		gAppConfig->JSONData.insert("groups", Groups);
 	}
-	for(device=0; device<DeviceList->count(); device++)
+	for(device=0; device<DefaultDeviceList->count(); device++)
 	{
 		QJsonObject DeviceObject;
-		DeviceObject.insert("address", DeviceList->at(device)->Address.toString());
-		DeviceObject.insert("description", DeviceList->at(device)->Description);
-		DeviceObject.insert("miner", DeviceList->at(device)->Miner);
-		DeviceObject.insert("type", DeviceList->at(device)->Type);
-		DeviceObject.insert("group", QJsonValue::fromVariant(DeviceList->at(device)->GroupID));
+		DeviceObject.insert("address", DefaultDeviceList->at(device)->Address.toString());
+		DeviceObject.insert("description", DefaultDeviceList->at(device)->Description);
+		DeviceObject.insert("miner", DefaultDeviceList->at(device)->Miner);
+		DeviceObject.insert("type", DefaultDeviceList->at(device)->Type);
+		DeviceObject.insert("group", QJsonValue::fromVariant(DefaultDeviceList->at(device)->GroupID));
 		Devices.append(DeviceObject);
 		gAppConfig->JSONData.insert("devices", Devices);
 	}
@@ -207,7 +210,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::rescanDevices()
 {
 	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
-	emit(NeedToRescanDevices(DeviceList));
+	emit(NeedToRescanDevices(DefaultDeviceList));
 }
 
 void MainWindow::updateDeviceView()
@@ -398,14 +401,14 @@ void MainWindow::addNewGroup(QString title, QString description, QString usernam
 
 	if(0==GroupsCount)
 	{
-		delete(qweWidget->DeviceList);
-		qweWidget->DeviceList=DeviceList;
+		DefaultDeviceList=qweWidget->DeviceList;
 		DefaultTabWidget=qweWidget;
 	}
+	GroupsCount++;
+
 	QAction *qweAction=new QAction(title, qweWidget);
 	ui->menuMove_devices_to->addAction(qweAction);
 	connect(qweAction, SIGNAL(triggered(bool)), this, SLOT(addDevicesToGroup()));
-	GroupsCount++;
 }
 
 void MainWindow::on_rebootButton_clicked()
