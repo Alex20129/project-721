@@ -4,7 +4,7 @@
 #include "logger.hpp"
 #include "main.hpp"
 
-MainWindow *MainWin;
+MainWindow *gMainWin=nullptr;
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -35,6 +35,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	this->setWindowTitle(QString(PROGRAM_NAME)+QString(" ")+QString(PROGRAM_VERSION));
 
 	connect(ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(updateDeviceView()));
+
+	if(!gMainWin)
+	{
+		gMainWin=this;
+	}
 }
 
 MainWindow::~MainWindow()
@@ -115,41 +120,43 @@ void MainWindow::on_timeToWakeUp()
 void MainWindow::loadTabs()
 {
 	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
+	ASICTableWidget *newGroupWidget;
 	int groupsCount, group;
-	QJsonArray groups;
+	QJsonArray groupsJSONArray;
 	if(gAppConfig->JSONData.value("groups").isArray())
 	{
-		groups=gAppConfig->JSONData.value("groups").toArray();
+		groupsJSONArray=gAppConfig->JSONData.value("groups").toArray();
 	}
-	groupsCount=groups.size();
-	for(group=0; group<groupsCount; group++)
-	{
-		addNewGroup(
-		groups.at(group).toObject().value("title").toString(),
-		groups.at(group).toObject().value("description").toString(),
-		groups.at(group).toObject().value("username").toString(),
-		groups.at(group).toObject().value("password").toString(),
-		groups.at(group).toObject().value("apiport").toInt(),
-		groups.at(group).toObject().value("webport").toInt()
-		);
-	}
+	groupsCount=groupsJSONArray.size();
 	if(groupsCount<1)
 	{
 		emit(NeedToCreateNewGroup());
 		return;
 	}
+	for(group=0; group<groupsCount; group++)
+	{
+		QJsonObject groupJSONObject=groupsJSONArray.at(group).toObject();
+		newGroupWidget=new ASICTableWidget(this);
+		newGroupWidget->Title=groupJSONObject.value("title").toString();
+		newGroupWidget->Description=groupJSONObject.value("description").toString();
+		newGroupWidget->UserName=groupJSONObject.value("username").toString();
+		newGroupWidget->Password=groupJSONObject.value("password").toString();
+		newGroupWidget->APIPort=groupJSONObject.value("apiport").toInt();
+		newGroupWidget->WebPort=groupJSONObject.value("webport").toInt();
+		addNewGroup(newGroupWidget);
+	}
 	int devicesCount, device;
-	QJsonArray devices;
+	QJsonArray devicesJSONArray;
 	if(gAppConfig->JSONData.value("devices").isArray())
 	{
-		devices=gAppConfig->JSONData.value("devices").toArray();
+		devicesJSONArray=gAppConfig->JSONData.value("devices").toArray();
 	}
-	devicesCount=devices.size();
+	devicesCount=devicesJSONArray.size();
 	for(device=0; device<devicesCount; device++)
 	{
-		int device_group=devices.at(device).toObject().value("group").toInt();
+		int device_group=devicesJSONArray.at(device).toObject().value("group").toInt();
 		ASICDevice *newDevice=new(ASICDevice);
-		newDevice->Address=QHostAddress(devices.at(device).toObject().value("address").toString());
+		newDevice->Address=QHostAddress(devicesJSONArray.at(device).toObject().value("address").toString());
 		GroupTabsWidgets->first()->addDevice(newDevice);
 		if(device_group>0 && device_group<ui->tabWidget->count())
 		{
@@ -361,45 +368,42 @@ void MainWindow::addNewDevices(QString addressFrom, QString addressTo)
 	updateDeviceView();
 }
 
-void MainWindow::addNewGroup(QString title, QString description, QString username, QString password, quint16 apiport, quint16 webport)
+void MainWindow::addNewGroup(ASICTableWidget *new_group_widget)
 {
 	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
-	ASICTableWidget *qweWidget=new ASICTableWidget(this);
-	qweWidget->setSortingEnabled(true);
-	qweWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	qweWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
-	qweWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
-	qweWidget->setWordWrap(false);
-	qweWidget->setShowGrid(false);
-	qweWidget->setIconSize(QSize(32, 32));
+	if(!new_group_widget)
+	{
+		new_group_widget=new ASICTableWidget(this);
+	}
+	new_group_widget->GroupID=GroupTabsWidgets->size();
 
-	qweWidget->setColumnCount(ColumnTitles->count());
-	qweWidget->setHorizontalHeaderLabels(*ColumnTitles);
+	new_group_widget->setSortingEnabled(true);
+	new_group_widget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	new_group_widget->setSelectionMode(QAbstractItemView::ExtendedSelection);
+	new_group_widget->setSelectionBehavior(QAbstractItemView::SelectRows);
+	new_group_widget->setWordWrap(false);
+	new_group_widget->setShowGrid(false);
+	new_group_widget->setIconSize(QSize(32, 32));
 
-	qweWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::QHeaderView::Interactive);
+	new_group_widget->setColumnCount(ColumnTitles->count());
+	new_group_widget->setHorizontalHeaderLabels(*ColumnTitles);
+
+	new_group_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::QHeaderView::Interactive);
 	//qweWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
 	//qweWidget->horizontalHeader()->setSectionResizeMode(qweWidget->horizontalHeader()->count()-1, QHeaderView::Stretch);
-	qweWidget->verticalHeader()->setHidden(true);
+	new_group_widget->verticalHeader()->setHidden(true);
 
-	qweWidget->setContextMenuPolicy(Qt::CustomContextMenu);
-	connect(qweWidget, SIGNAL(customContextMenuRequested(QPoint)),  this, SLOT(on_customContextMenuRequested(QPoint)));
+	new_group_widget->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(new_group_widget, SIGNAL(customContextMenuRequested(QPoint)),  this, SLOT(on_customContextMenuRequested(QPoint)));
 
-	qweWidget->Title=title;
-	qweWidget->Description=description;
-	qweWidget->UserName=username;
-	qweWidget->Password=password;
-	qweWidget->APIPort=apiport;
-	qweWidget->WebPort=webport;
-	qweWidget->GroupID=GroupTabsWidgets->size();
-
-	if(0==qweWidget->GroupID)
+	if(0==new_group_widget->GroupID)
 	{
-		DefaultDeviceList=qweWidget->DeviceList;
+		DefaultDeviceList=new_group_widget->DeviceList;
 	}
-	GroupTabsWidgets->append(qweWidget);
-	ui->tabWidget->addTab(qweWidget, qweWidget->Title);
+	GroupTabsWidgets->append(new_group_widget);
+	ui->tabWidget->addTab(new_group_widget, new_group_widget->Title);
 
-	QAction *qweAction=new QAction(title, qweWidget);
+	QAction *qweAction=new QAction(new_group_widget->Title, new_group_widget);
 	ui->menuMove_devices_to->addAction(qweAction);
 	connect(qweAction, SIGNAL(triggered(bool)), this, SLOT(addDevicesToGroup()));
 }
@@ -654,13 +658,13 @@ void MainWindow::on_actionReset_to_default_triggered()
 void MainWindow::on_actionToggle_fullscreen_triggered()
 {
 	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
-	if(MainWin->isFullScreen())
+	if(gMainWin->isFullScreen())
 	{
-		MainWin->showNormal();
+		gMainWin->showNormal();
 	}
 	else
 	{
-		MainWin->showFullScreen();
+		gMainWin->showFullScreen();
 	}
 }
 

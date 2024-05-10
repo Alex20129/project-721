@@ -37,7 +37,7 @@ public slots:
 	void addDevice(ASICDevice *device);
     void addDevicesToGroup();
     void addNewDevices(QString addressFrom, QString addressTo);
-    void addNewGroup(QString title, QString description, QString username, QString password, quint16 apiport, quint16 webport);
+	void addNewGroup(ASICTableWidget *new_group_widget);
     void uploadSettings(QStringList settings);
 public:
     explicit MainWindow(QWidget *parent=nullptr);
@@ -49,6 +49,8 @@ public:
     bool IsAwake;
     QTimer *RefreshTimer, *SleepWakeTimer;
     QStringList *ColumnTitles;
+	QVector <ASICDevice *> *DefaultDeviceList;
+	QVector <ASICTableWidget *> *GroupTabsWidgets;
 
 private slots:
     void rescanDevices();
@@ -78,13 +80,11 @@ private slots:
 	void on_searchButton_clicked();
 
 private:
-	QVector <ASICDevice *> *DefaultDeviceList;
-	QVector <ASICTableWidget *> *GroupTabsWidgets;
     uint ActiveUploadingThreads;
     QByteArray *firmwareData;
     Ui::MainWindow *ui;
 };
 
-extern MainWindow *MainWin;
+extern MainWindow *gMainWin;
 
 #endif // MAINWINDOW_HPP
