@@ -848,7 +848,7 @@ void MainWindow::on_tabWidget_tabCloseRequested(int index)
 void MainWindow::on_tabWidget_tabBarDoubleClicked(int index)
 {
 	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
-	emit(NeedToShowGroupSettings(index));
+	emit(NeedToShowGroupSettings(GroupTabsWidgets->at(index)));
 }
 
 void MainWindow::on_actionSupport_website_triggered()

@@ -1,7 +1,6 @@
 #include "groupsettingsdialog.h"
 #include "ui_groupsettingsdialog.h"
 #include "logger.hpp"
-#include "mainwindow.hpp"
 
 GroupSettingsDialog::GroupSettingsDialog(QWidget *parent) : QDialog(parent),
     ui(new Ui::GroupSettingsDialog)
@@ -17,15 +16,15 @@ GroupSettingsDialog::~GroupSettingsDialog()
     delete ui;
 }
 
-void GroupSettingsDialog::showGroupSettings(int group_id)
+void GroupSettingsDialog::showGroupSettings(ASICTableWidget *group_widget)
 {
 	gLogger->Log("GroupSettingsDialog::"+string(__FUNCTION__), LOG_DEBUG);
-	if(group_id<0)
+	if(group_widget==nullptr)
 	{
-		gLogger->Log("incorrect group_id="+to_string(group_id), LOG_ERR);
+		gLogger->Log("incorrect group_widget=nullptr", LOG_ERR);
 		return;
 	}
-	pGroupWidget=gMainWin->GroupTabsWidgets->at(group_id);
+	pGroupWidget=group_widget;
 	ui->title->setText(pGroupWidget->Title);
 	ui->description->setText(pGroupWidget->Description);
 	ui->username->setText(pGroupWidget->UserName);
@@ -41,7 +40,7 @@ void GroupSettingsDialog::on_buttonBox_accepted()
 	bool isANewGroup=!pGroupWidget;
 	if(isANewGroup)
 	{
-		pGroupWidget=new ASICTableWidget(gMainWin);
+		pGroupWidget=new ASICTableWidget(this);
 	}
 	pGroupWidget->Title=ui->title->text();
 	pGroupWidget->Description=ui->description->toPlainText();
@@ -52,13 +51,12 @@ void GroupSettingsDialog::on_buttonBox_accepted()
 	if(isANewGroup)
 	{
 		emit(newGroupCreated(pGroupWidget));
-		pGroupWidget=nullptr;
 	}
 	else
 	{
 		emit(groupSettingsUpdated(pGroupWidget));
-		pGroupWidget=nullptr;
 	}
+	pGroupWidget=nullptr;
 }
 
 void GroupSettingsDialog::on_buttonBox_rejected()

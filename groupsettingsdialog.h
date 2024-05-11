@@ -19,7 +19,7 @@ public:
     explicit GroupSettingsDialog(QWidget *parent=nullptr);
     ~GroupSettingsDialog();
 public slots:
-	void showGroupSettings(int group_id);
+	void showGroupSettings(ASICTableWidget *group_widget);
 private slots:
     void on_buttonBox_accepted();
 	void on_buttonBox_rejected();

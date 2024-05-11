@@ -29,7 +29,7 @@ signals:
 	void NeedToShowScannerWindow();
 	void NeedToShowSleepSettingsWindow();
 	void NeedToShowAddNewDeviceDialog();
-	void NeedToShowGroupSettings(int group_id);
+	void NeedToShowGroupSettings(ASICTableWidget *group_widget);
 	void NeedToCreateNewGroup();
 public slots:
     void updateDeviceView();
