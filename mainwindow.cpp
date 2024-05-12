@@ -158,7 +158,7 @@ void MainWindow::loadTabs()
 		ASICDevice *newDevice=new(ASICDevice);
 		newDevice->Address=QHostAddress(devicesJSONArray.at(device).toObject().value("address").toString());
 		GroupTabsWidgets->first()->addDevice(newDevice);
-		if(device_group>0 && device_group<ui->tabWidget->count())
+		if(device_group>0 && device_group<GroupTabsWidgets->count())
 		{
 			ASICTableWidget *tw=GroupTabsWidgets->at(device_group);
 			tw->addDevice(newDevice);
@@ -379,7 +379,7 @@ void MainWindow::addNewGroup(ASICTableWidget *new_group_widget)
 	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
 	if(!new_group_widget)
 	{
-		new_group_widget=new ASICTableWidget(this);
+		return;
 	}
 	new_group_widget->GroupID=GroupTabsWidgets->size();
 
@@ -848,7 +848,8 @@ void MainWindow::on_tabWidget_tabCloseRequested(int index)
 {
 	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
 	ui->tabWidget->widget(index)->deleteLater();
-	ui->tabWidget->removeTab(index);
+	GroupTabsWidgets->at(index)->deleteLater();
+	GroupTabsWidgets->removeAt(index);
 }
 
 void MainWindow::on_tabWidget_tabBarDoubleClicked(int index)
@@ -908,4 +909,5 @@ void MainWindow::on_searchButton_clicked()
 {
 	emit(NeedToShowScannerWindow());
 }
+
 

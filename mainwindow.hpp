@@ -50,8 +50,6 @@ public:
     bool IsAwake;
     QTimer *RefreshTimer, *SleepWakeTimer;
     QStringList *ColumnTitles;
-	QVector <ASICDevice *> *DefaultDeviceList;
-	QVector <ASICTableWidget *> *GroupTabsWidgets;
 
 private slots:
     void rescanDevices();
@@ -79,10 +77,11 @@ private slots:
 	void on_actionAdd_group_triggered();
 	void on_deviceSettingsButton_clicked();
 	void on_searchButton_clicked();
-
 private:
     uint ActiveUploadingThreads;
     QByteArray *firmwareData;
+	QVector <ASICDevice *> *DefaultDeviceList;
+	QVector <ASICTableWidget *> *GroupTabsWidgets;
     Ui::MainWindow *ui;
 };
 

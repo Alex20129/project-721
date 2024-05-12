@@ -21,7 +21,7 @@ public:
 
 class ASICTableWidget : public QTableWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 signals:
 public slots:
 	void addDevice(ASICDevice *deviceToAdd);
