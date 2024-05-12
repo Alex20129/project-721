@@ -331,6 +331,12 @@ void MainWindow::updateDeviceView()
 	ui->totalDevices->setText(QString::number(catw->rowCount()));
 }
 
+void MainWindow::applyGroupSettings(ASICTableWidget *group_widget)
+{
+	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
+	ui->tabWidget->setTabText(group_widget->GroupID, group_widget->Title);
+}
+
 void MainWindow::on_updateButton_clicked()
 {
 	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);

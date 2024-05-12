@@ -62,6 +62,7 @@ int main(int argc, char *argv[])
 	QApplication::connect(DevSetWin, &DeviceSettingsWindow::deviceSettingsObtained, gMainWin, &MainWindow::uploadSettings);
 	QApplication::connect(andd, &AddNewDeviceDialog::deviceDataObtained, gMainWin, &MainWindow::addNewDevices);
 	QApplication::connect(GroupSetDia, &GroupSettingsDialog::newGroupCreated, gMainWin, &MainWindow::addNewGroup);
+	QApplication::connect(GroupSetDia, &GroupSettingsDialog::groupSettingsUpdated, gMainWin, &MainWindow::applyGroupSettings);
 
 	gMainWin->loadTabs();
 	gMainWin->show();

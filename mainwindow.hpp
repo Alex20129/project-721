@@ -33,6 +33,7 @@ signals:
 	void NeedToCreateNewGroup();
 public slots:
     void updateDeviceView();
+	void applyGroupSettings(ASICTableWidget *group_widget);
     void on_customContextMenuRequested(QPoint position);
 	void addDevice(ASICDevice *device);
     void addDevicesToGroup();
