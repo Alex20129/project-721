@@ -13,7 +13,9 @@ SET(CMAKE_AUTOUIC ON)
 FIND_PACKAGE(Qt5 COMPONENTS Core Gui Widgets Network REQUIRED)
 
 LINK_LIBRARIES(Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
-LINK_LIBRARIES(-static-libgcc -static-libstdc++)
+IF(WIN32)
+	LINK_LIBRARIES(-static-libgcc -static-libstdc++)
+ENDIF(WIN32)
 
 ADD_EXECUTABLE(${PROJECT_NAME}
         sleepsettingswindow.ui
