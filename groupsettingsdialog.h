@@ -14,7 +14,6 @@ class GroupSettingsDialog : public QDialog
     Q_OBJECT
 signals:
 	void newGroupCreated(ASICTableWidget *new_group_widget);
-	void groupSettingsUpdated(ASICTableWidget *group_widget);
 public:
     explicit GroupSettingsDialog(QWidget *parent=nullptr);
     ~GroupSettingsDialog();

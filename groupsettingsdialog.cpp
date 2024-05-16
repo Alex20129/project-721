@@ -22,15 +22,19 @@ void GroupSettingsDialog::showGroupSettings(ASICTableWidget *group_widget)
 	if(group_widget==nullptr)
 	{
 		gLogger->Log("incorrect group_widget=nullptr", LOG_ERR);
-		return;
+		pGroupWidget=nullptr;
+		ui->title->setText(QString("New group"));
 	}
-	pGroupWidget=group_widget;
-	ui->title->setText(pGroupWidget->Title);
-	ui->description->setText(pGroupWidget->Description);
-	ui->username->setText(pGroupWidget->UserName);
-	ui->password->setText(pGroupWidget->Password);
-	ui->apiport->setText(QString::number(pGroupWidget->APIPort));
-	ui->webport->setText(QString::number(pGroupWidget->WebPort));
+	else
+	{
+		pGroupWidget=group_widget;
+		ui->title->setText(pGroupWidget->Title());
+		ui->description->setText(pGroupWidget->Description());
+		ui->username->setText(pGroupWidget->UserName());
+		ui->password->setText(pGroupWidget->Password());
+		ui->apiport->setText(QString::number(pGroupWidget->APIPort()));
+		ui->webport->setText(QString::number(pGroupWidget->WebPort()));
+	}
 	this->show();
 }
 
@@ -42,19 +46,15 @@ void GroupSettingsDialog::on_buttonBox_accepted()
 	{
 		pGroupWidget=new ASICTableWidget(this);
 	}
-	pGroupWidget->Title=ui->title->text();
-	pGroupWidget->Description=ui->description->toPlainText();
-	pGroupWidget->UserName=ui->username->text();
-	pGroupWidget->Password=ui->password->text();
-	pGroupWidget->APIPort=static_cast<quint16>(ui->apiport->text().toUInt());
-	pGroupWidget->WebPort=static_cast<quint16>(ui->webport->text().toUInt());
+	pGroupWidget->SetTitle(ui->title->text());
+	pGroupWidget->SetDescription(ui->description->toPlainText());
+	pGroupWidget->SetUserName(ui->username->text());
+	pGroupWidget->SetPassword(ui->password->text());
+	pGroupWidget->SetAPIPort(static_cast<quint16>(ui->apiport->text().toUInt()));
+	pGroupWidget->SetWebPort(static_cast<quint16>(ui->webport->text().toUInt()));
 	if(isANewGroup)
 	{
 		emit(newGroupCreated(pGroupWidget));
-	}
-	else
-	{
-		emit(groupSettingsUpdated(pGroupWidget));
 	}
 	pGroupWidget=nullptr;
 }

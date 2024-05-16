@@ -137,12 +137,12 @@ void MainWindow::loadTabs()
 	{
 		QJsonObject groupJSONObject=groupsJSONArray.at(group).toObject();
 		newGroupWidget=new ASICTableWidget(this);
-		newGroupWidget->Title=groupJSONObject.value("title").toString();
-		newGroupWidget->Description=groupJSONObject.value("description").toString();
-		newGroupWidget->UserName=groupJSONObject.value("username").toString();
-		newGroupWidget->Password=groupJSONObject.value("password").toString();
-		newGroupWidget->APIPort=groupJSONObject.value("apiport").toInt();
-		newGroupWidget->WebPort=groupJSONObject.value("webport").toInt();
+		newGroupWidget->SetTitle(groupJSONObject.value("title").toString());
+		newGroupWidget->SetDescription(groupJSONObject.value("description").toString());
+		newGroupWidget->SetUserName(groupJSONObject.value("username").toString());
+		newGroupWidget->SetPassword(groupJSONObject.value("password").toString());
+		newGroupWidget->SetAPIPort(groupJSONObject.value("apiport").toInt());
+		newGroupWidget->SetWebPort(groupJSONObject.value("webport").toInt());
 		addNewGroup(newGroupWidget);
 	}
 	int devicesCount, device;
@@ -178,12 +178,12 @@ void MainWindow::saveTabs()
 	{
 		ASICTableWidget *TabWidget=GroupTabsWidgets->at(tab);
 		QJsonObject TabObject;
-		TabObject.insert("title", TabWidget->Title);
-		TabObject.insert("description", TabWidget->Description);
-		TabObject.insert("username", TabWidget->UserName);
-		TabObject.insert("password", TabWidget->Password);
-		TabObject.insert("apiport", QJsonValue::fromVariant(TabWidget->APIPort));
-		TabObject.insert("webport", QJsonValue::fromVariant(TabWidget->WebPort));
+		TabObject.insert("title", TabWidget->Title());
+		TabObject.insert("description", TabWidget->Description());
+		TabObject.insert("username", TabWidget->UserName());
+		TabObject.insert("password", TabWidget->Password());
+		TabObject.insert("apiport", QJsonValue::fromVariant(TabWidget->APIPort()));
+		TabObject.insert("webport", QJsonValue::fromVariant(TabWidget->WebPort()));
 		Groups.append(TabObject);
 		gAppConfig->JSONData.insert("groups", Groups);
 	}
@@ -334,7 +334,7 @@ void MainWindow::updateDeviceView()
 void MainWindow::applyGroupSettings(ASICTableWidget *group_widget)
 {
 	gLogger->Log("MainWindow::"+string(__FUNCTION__), LOG_DEBUG);
-	ui->tabWidget->setTabText(group_widget->GroupID, group_widget->Title);
+	ui->tabWidget->setTabText(group_widget->GroupID(), group_widget->Title());
 }
 
 void MainWindow::on_updateButton_clicked()
@@ -381,7 +381,7 @@ void MainWindow::addNewGroup(ASICTableWidget *new_group_widget)
 	{
 		return;
 	}
-	new_group_widget->GroupID=GroupTabsWidgets->size();
+	new_group_widget->SetGroupID(GroupTabsWidgets->size());
 
 	new_group_widget->setSortingEnabled(true);
 	new_group_widget->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -402,14 +402,14 @@ void MainWindow::addNewGroup(ASICTableWidget *new_group_widget)
 	new_group_widget->setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(new_group_widget, SIGNAL(customContextMenuRequested(QPoint)),  this, SLOT(on_customContextMenuRequested(QPoint)));
 
-	if(0==new_group_widget->GroupID)
+	if(0==new_group_widget->GroupID())
 	{
 		DefaultDeviceList=new_group_widget->DeviceList;
 	}
 	GroupTabsWidgets->append(new_group_widget);
-	ui->tabWidget->addTab(new_group_widget, new_group_widget->Title);
+	ui->tabWidget->addTab(new_group_widget, new_group_widget->Title());
 
-	QAction *qweAction=new QAction(new_group_widget->Title, new_group_widget);
+	QAction *qweAction=new QAction(new_group_widget->Title(), new_group_widget);
 	ui->menuMove_devices_to->addAction(qweAction);
 	connect(qweAction, SIGNAL(triggered(bool)), this, SLOT(addDevicesToGroup()));
 }
