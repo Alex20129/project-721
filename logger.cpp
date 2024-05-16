@@ -1,5 +1,6 @@
 #include <ctime>
 #include <cstring>
+#include <clocale>
 #include "logger.hpp"
 #include "main.hpp"
 
