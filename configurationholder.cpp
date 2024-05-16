@@ -1,5 +1,6 @@
 #include "configurationholder.h"
 #include "main.hpp"
+#include <QVariant>
 
 ConfigurationHolder *gAppConfig;
 
